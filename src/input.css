@@ -1,0 +1,48 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+
+@layer base{
+    @font-face {
+        font-family: "Dana";
+        
+        src:url("../public/fonts/Dana/woff2/DanaFaNum-Regular.woff2") format("woff2");
+        font-display: swap;
+    }
+    @font-face {
+        font-family: "Dana Medium";
+        
+        src:url("../public/fonts/Dana/woff2/DanaFaNum-Medium.woff2") format("woff2");
+        font-display: swap;
+    }
+    @font-face {
+        font-family: "Dana DemiBold";
+        
+        src:url("../public/fonts/Dana/woff2/DanaFaNum-DemiBold.woff2") format("woff2");
+        font-display: swap;
+    }
+    @font-face {
+        font-family: "Morabba Light";
+        
+        src:url("../public/fonts/Morabba/woff2/Morabba-Light.woff2") format("woff2");
+        font-display: swap;
+    }
+    @font-face {
+        font-family: "Morabba Medium";
+        
+        src: url("../public/fonts/Morabba/woff2/Morabba-Medium.woff2") format("woff2");
+        font-display: swap;
+    }
+    @font-face {
+        font-family: "Morabba Bold";
+        
+        src:url("../public/fonts/Morabba/woff2/Morabba-Bold.woff2") format("woff2");
+        font-display: swap;
+    }
+}
+@layer components {
+    .gradient {
+        background: linear-gradient(360deg, #FFFFFF 8.47%, #FFFFFF 38%, rgba(255, 255, 255, 0.664639) 61.42%, rgba(255, 255, 255, 0) 98.39%);
+    }
+  }
