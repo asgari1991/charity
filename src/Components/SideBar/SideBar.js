@@ -10,6 +10,7 @@ export default function SideBar() {
 
         <div className="absolute w-full top-[300px]  text-mainBlue z-50">
           <h1 className=" mb-[60px] text-2xl text-center font-DanaDemiBold">پنل مدیریت</h1>
+  {/*Nav Menu*/}
           <ul className=" space-y-[28px] text-base leading-6 font-DanaMedium child:flex child:items-center child:justify-start child:gap-x-[14px] pr-[63px]">
             <NavLink to={"/families"} >
              <div className="flex items-center">
