@@ -6,7 +6,7 @@ import Search from "./search/Search";
 export default function Family() {
   const [isShowNewFamilyModal, setIsShowNewFamilyModal] = useState(false);
   const [selectedResidenceStatus, setSelectedResidenceStatus] = useState(null);
-
+const [selectedLocation, setSelectedLocation] = useState(null);
   const closeNewFamilyModal = () => {
     setIsShowNewFamilyModal(false);
   };
@@ -33,7 +33,9 @@ export default function Family() {
         <div className="w-full mr-26 my-3 flex justify-start items-center px-8">
           <Search
           selectedResidenceStatus={selectedResidenceStatus}
-          setSelectedResidenceStatus={setSelectedResidenceStatus}/>
+          setSelectedResidenceStatus={setSelectedResidenceStatus}
+          selectedLocation={selectedLocation}
+          setSelectedLocation={setSelectedLocation}/>
           
         {/* <div className="w-full h-[102px] py-3 font-DanaMedium border-y-2">
             <div className="flex items-center gap-x-1">

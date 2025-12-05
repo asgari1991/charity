@@ -1,8 +1,11 @@
 import React, { useState } from "react";
 import { Formik, Form } from "formik";
 import ComboBox from "../../general/combox/ComboBox";
-const Search = ({selectedResidenceStatus, setSelectedResidenceStatus}) => {
-  const [residenceStatusList, setResidenceStatusList] = useState([]);
+const Search = ({selectedResidenceStatus, setSelectedResidenceStatus,selectedLocation,setSelectedLocation}) => {
+  const [residenceStatusList, setResidenceStatusList] = useState([
+    { id: 1, name: "مالک" },
+    { id: 2, name: "مستاجر" },]);
+  const [location,setLocation]=useState([])
   const InitialValues = {
     userName: "",
     name: "",
@@ -104,7 +107,7 @@ const Search = ({selectedResidenceStatus, setSelectedResidenceStatus}) => {
                 <ComboBox
                   title="وضعیت مسکن"
                   data={residenceStatusList}
-                  selectedValue={selectedResidenceStatus?.name}
+                  selectedValue={selectedResidenceStatus}
                   onChangeHandler={(val) => setSelectedResidenceStatus(val)}
                   itemName={(item) => item.name}
                   width="163px"
@@ -114,6 +117,35 @@ const Search = ({selectedResidenceStatus, setSelectedResidenceStatus}) => {
                 {selectedResidenceStatus && (
                   <svg
                     onClick={() => setSelectedResidenceStatus(null)}
+                    xmlns="http://www.w3.org/2000/svg"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    strokeWidth="1.5"
+                    stroke="currentColor"
+                    className="size-2 cursor-pointer absolute left-2 top-[10px]"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      d="M6 18 18 6M6 6l12 12"
+                    />
+                  </svg>
+                )}
+              </div>
+              <div className="relative flex flex-col z-[60]">
+                <ComboBox
+                  title="منطقه"
+                  data={location}
+                  selectedValue={selectedLocation}
+                  onChangeHandler={(val) => setSelectedLocation(val)}
+                  itemName={(item) => item.name}
+                  width="163px"
+                  rounded="8px"
+            
+                />
+                {selectedLocation && (
+                  <svg
+                    onClick={() => setSelectedLocation(null)}
                     xmlns="http://www.w3.org/2000/svg"
                     fill="none"
                     viewBox="0 0 24 24"
