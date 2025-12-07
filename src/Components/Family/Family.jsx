@@ -2,11 +2,24 @@ import React, { useState } from "react";
 import NewFamilyModal from "../NewFamilyModal/NewFamilyModal";
 import Header from "../Header/Header";
 import Search from "./search/Search";
+import Table from "./table/Table";
 
 export default function Family() {
   const [isShowNewFamilyModal, setIsShowNewFamilyModal] = useState(false);
   const [selectedResidenceStatus, setSelectedResidenceStatus] = useState(null);
 const [selectedLocation, setSelectedLocation] = useState(null);
+  const [tableBodyDatas, setTableBodyDatas] = useState([]);
+  const [tableHeaderDatas, setTableHeaderDatas] = useState([
+    "ردیف",
+    " نام و نام خانوادگی سرپرست",
+    "کدملی",
+    "شغل",
+    "تعداد اعضای خانواده",
+    "وضعیت مسکن",
+    "منطقه",
+    "مشاهده پروفایل ",
+ 
+  ]);
   const closeNewFamilyModal = () => {
     setIsShowNewFamilyModal(false);
   };
@@ -37,104 +50,7 @@ const [selectedLocation, setSelectedLocation] = useState(null);
           selectedLocation={selectedLocation}
           setSelectedLocation={setSelectedLocation}/>
           
-        {/* <div className="w-full h-[102px] py-3 font-DanaMedium border-y-2">
-            <div className="flex items-center gap-x-1">
-              <svg
-                width="24"
-                height="24"
-                viewBox="0 0 24 24"
-                fill="none"
-                xmlns="http://www.w3.org/2000/svg"
-              >
-                <path
-                  d="M5 12L5 4"
-                  stroke="#4E6F88"
-                  strokeWidth="2"
-                  strokeLinecap="round"
-                />
-                <path
-                  d="M19 20L19 18"
-                  stroke="#4E6F88"
-                  strokeWidth="2"
-                  strokeLinecap="round"
-                />
-                <path
-                  d="M5 20L5 16"
-                  stroke="#4E6F88"
-                  strokeWidth="2"
-                  strokeLinecap="round"
-                />
-                <path
-                  d="M19 12L19 4"
-                  stroke="#4E6F88"
-                  strokeWidth="2"
-                  strokeLinecap="round"
-                />
-                <path
-                  d="M12 7L12 4"
-                  stroke="#4E6F88"
-                  strokeWidth="2"
-                  strokeLinecap="round"
-                />
-                <path
-                  d="M12 20L12 12"
-                  stroke="#4E6F88"
-                  strokeWidth="2"
-                  strokeLinecap="round"
-                />
-                <circle
-                  cx="5"
-                  cy="14"
-                  r="2"
-                  stroke="#4E6F88"
-                  strokeWidth="2"
-                  strokeLinecap="round"
-                />
-                <circle
-                  cx="12"
-                  cy="9"
-                  r="2"
-                  stroke="#4E6F88"
-                  strokeWidth="2"
-                  strokeLinecap="round"
-                />
-                <circle
-                  cx="19"
-                  cy="15"
-                  r="2"
-                  stroke="#4E6F88"
-                  strokeWidth="2"
-                  strokeLinecap="round"
-                />
-              </svg>
-              <span className="text-sm">
-                در صورت نیاز به فیلتر اطلاعات در جدول, از فیلتر های زیر استفاده
-                کنید.
-              </span>
-            </div>
         
-
-            <div className="flex items-center justify-between mt-4">
-              <div className="flex gap-x-3 justify-start child:w-[163px] child:h-8 child:border child:border-mainBlue/25 child:px-2.5 child:py-2 child:rounded-lg child:text-xs">
-                <input type="text" placeholder="نام سرپرست" />
-                <input type="text" placeholder="شغل سرپرست" />
-                <select>
-                  <option value="" disabled selected hidden>
-                    وضعیت مسکن
-                  </option>
-                </select>
-
-                <select>
-                  <option value="" disabled selected hidden>
-                    منطقه
-                  </option>
-                </select>
-              </div>
-              <button className="font-DanaDemiBold text-xs rounded-lg bg-mainBlue text-white p-2.5">
-                مشاهده نتایج
-              </button>
-            </div>
-          </div>*/}
         </div>
         <div className="w-full mt-2">
           <div>
@@ -276,33 +192,11 @@ const [selectedLocation, setSelectedLocation] = useState(null);
                 </button>
               </div>
             </div>
-             <div className="text-center mt-[18px] border border-tableBorder rounded-lg">
-          <table className=" w-full  ">
-            <thead className="bg-tableBg font-DanaDemiBold text-xs h-9 border-b-4 border-b-mainBlue">
-              <tr>
-                <td>ردیف</td>
-                <td>نام و نام خانوادگی سرپرست</td>
-                <td>کدملی سرپرست</td>
-                <td>شغل</td>
-                <td>تعداد اعضای خانواده</td>
-                <td>وضعیت مسکن</td>
-                <td>منطقه</td>
-                <td>مشاهده پروفایل</td>
-              </tr>
-            </thead>
-            <tbody className="h-7 text-xs">
-              <tr>
-                <td>1</td>
-                <td>محمد محمدی</td>
-                <td>123456789</td>
-                <td>بیکار</td>
-                <td>5 </td>
-                <td>مستاجر</td>
-                <td>5</td>
-                <td>مشاهده پروفایل</td>
-              </tr>
-            </tbody>
-          </table>
+             <div className="text-center mt-[18px] border border-tableBorder rounded-lg ">
+              <Table
+               tableHeaderDatas={tableHeaderDatas}
+              tableBodyDatas={tableBodyDatas}/>
+          
         </div>
           </div>
         </div>

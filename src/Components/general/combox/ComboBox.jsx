@@ -67,7 +67,7 @@ const ComboBox = ({
               }}
             >
               <Combobox.Input
-                className="w-full h-full box-border outline-none px-3 pr-12 text-black border font-iranSans"
+                className="w-full h-full box-border outline-none px-3 text-black border font-iranSans"
                 style={{
                   borderColor: ringColor || "#d1d5db",
                   borderRadius: rounded,
@@ -109,20 +109,22 @@ const ComboBox = ({
                 onClick={() => setFilteredItems(Array.isArray(data) ? data.slice(0, 30) : [])}
                 aria-label="toggle dropdown"
               >
-                <svg
-                  // keep Tailwind classes but also set inline fallback sizing
-                  className="w-4 h-4 text-gray-500"
-                  width="16"
-                  height="16"
-                  xmlns="http://www.w3.org/2000/svg"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke="currentColor"
-                  strokeWidth={1.5}
-                  aria-hidden="true"
-                >
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
-                </svg>
+                {displayValue(selectedValue) === "" && (
+                  <svg
+                    // keep Tailwind classes but also set inline fallback sizing
+                    className="w-4 h-4 text-gray-500"
+                    width="16"
+                    height="16"
+                    xmlns="http://www.w3.org/2000/svg"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                    strokeWidth={1.5}
+                    aria-hidden="true"
+                  >
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
+                  </svg>
+                )}
               </Combobox.Button>
             </div>
           </div>

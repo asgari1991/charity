@@ -111,6 +111,7 @@ const Search = ({selectedResidenceStatus, setSelectedResidenceStatus,selectedLoc
                   onChangeHandler={(val) => setSelectedResidenceStatus(val)}
                   itemName={(item) => item.name}
                   width="163px"
+                  height="32px"
                   rounded="8px"
             
                 />
@@ -122,7 +123,7 @@ const Search = ({selectedResidenceStatus, setSelectedResidenceStatus,selectedLoc
                     viewBox="0 0 24 24"
                     strokeWidth="1.5"
                     stroke="currentColor"
-                    className="size-2 cursor-pointer absolute left-2 top-[10px]"
+                    className="size-4 cursor-pointer absolute left-2 top-[10px] z-[99999]"
                   >
                     <path
                       strokeLinecap="round"
@@ -140,6 +141,7 @@ const Search = ({selectedResidenceStatus, setSelectedResidenceStatus,selectedLoc
                   onChangeHandler={(val) => setSelectedLocation(val)}
                   itemName={(item) => item.name}
                   width="163px"
+                  height="32px"
                   rounded="8px"
             
                 />
@@ -151,7 +153,7 @@ const Search = ({selectedResidenceStatus, setSelectedResidenceStatus,selectedLoc
                     viewBox="0 0 24 24"
                     strokeWidth="1.5"
                     stroke="currentColor"
-                    className="size-2 cursor-pointer absolute left-2 top-[10px]"
+                    className="size-4 cursor-pointer absolute left-2 top-[10px]"
                   >
                     <path
                       strokeLinecap="round"
