@@ -103,27 +103,32 @@ const Search = ({selectedResidenceStatus, setSelectedResidenceStatus,selectedLoc
                 className="w-[163px] h-8 border border-mainBlue/25 p-2 py-2 rounded-lg text-xs"
                 placeholder="شغل سرپرست"
               />
-              <div className="relative flex flex-col z-[60]">
+              <div className="relative flex flex-col">
                 <ComboBox
                   title="وضعیت مسکن"
                   data={residenceStatusList}
                   selectedValue={selectedResidenceStatus}
                   onChangeHandler={(val) => setSelectedResidenceStatus(val)}
+                  
                   itemName={(item) => item.name}
                   width="163px"
                   height="32px"
                   rounded="8px"
             
                 />
+                
                 {selectedResidenceStatus && (
                   <svg
-                    onClick={() => setSelectedResidenceStatus(null)}
+                    onClick={() =>{setSelectedResidenceStatus(null)
+                      console.log('selected residence', selectedResidenceStatus);
+                      
+                    } }
                     xmlns="http://www.w3.org/2000/svg"
                     fill="none"
                     viewBox="0 0 24 24"
                     strokeWidth="1.5"
                     stroke="currentColor"
-                    className="size-4 cursor-pointer absolute left-2 top-[10px] z-[99999]"
+                    className="size-4 cursor-pointer absolute left-2 top-[10px] z-30"
                   >
                     <path
                       strokeLinecap="round"
@@ -133,7 +138,7 @@ const Search = ({selectedResidenceStatus, setSelectedResidenceStatus,selectedLoc
                   </svg>
                 )}
               </div>
-              <div className="relative flex flex-col z-[60]">
+              <div className="relative flex flex-col ">
                 <ComboBox
                   title="منطقه"
                   data={location}

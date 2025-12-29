@@ -20,19 +20,19 @@ const TableBody = ({
         {index + 1}
       </td>
       <td dir="rtl" className="py-3  text-[13px] text-center font-iranSans ">
-        {item.name || "--"}
+        {item.head_first_name + " "+ item.head_last_name || "--"}
       </td>
       <td dir="rtl" className="py-3  text-[13px] text-center font-iranSans ">
-        {item.phone || "--"}
+        {item.head_national_code || "--"}
       </td>
       <td dir="rtl" className="py-3  text-[13px] text-center font-iranSans ">
-        {item.mobile || "--"}
+        {item.head_job || "--"}
       </td>
       <td dir="rtl" className="py-3  text-[13px] text-center font-iranSans ">
-        {item.postalCode || "--"}
+        {item.members_count || "--"}
       </td>
       <td dir="rtl" className="py-3 text-[13px] text-center font-iranSans">
-        {item.contractorName || "--"}
+        {item.house_status_id === 1 ? "مالک": "مستاجر" || "--"}
       </td>
     
      

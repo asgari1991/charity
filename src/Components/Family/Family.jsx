@@ -1,13 +1,22 @@
-import React, { useState } from "react";
-import NewFamilyModal from "../NewFamilyModal/NewFamilyModal";
+import React, { useEffect, useState } from "react";
+
 import Header from "../Header/Header";
 import Search from "./search/Search";
 import Table from "./table/Table";
+import axios from "axios";
+import NewFamilyModal from "./modals/NewFamilyModal";
 
 export default function Family() {
-  const [isShowNewFamilyModal, setIsShowNewFamilyModal] = useState(false);
+  //----------------------------------------------------------------
+  const [newFamilyModalShow, setNewFamilyModalShow] = useState(false);
+  const [refresh, setRefresh] = useState(false);
+  //----------------------------------------------------------------
+  const [updateMode, setUpdateMode] = useState(false);
   const [selectedResidenceStatus, setSelectedResidenceStatus] = useState(null);
-const [selectedLocation, setSelectedLocation] = useState(null);
+  const [selectedLocation, setSelectedLocation] = useState(null);
+  const [selectedFamilyHead, setSelectedFamilyHead] = useState(null);
+  const [selectedJob, setSelectedJob] = useState(null);
+  //----------------------------------------------------------------
   const [tableBodyDatas, setTableBodyDatas] = useState([]);
   const [tableHeaderDatas, setTableHeaderDatas] = useState([
     "ردیف",
@@ -18,16 +27,37 @@ const [selectedLocation, setSelectedLocation] = useState(null);
     "وضعیت مسکن",
     "منطقه",
     "مشاهده پروفایل ",
- 
   ]);
-  const closeNewFamilyModal = () => {
-    setIsShowNewFamilyModal(false);
-  };
+  useEffect(() => {
+    axios
+      .get("http://195.88.208.6:5000/api/families", {
+        params: {
+          family_head_id: selectedFamilyHead,
+          job: selectedJob,
+          house_status_id: selectedResidenceStatus,
+        },
+      })
+      .then((res) => {
+        if (res.status === 200) {
+          setTableBodyDatas(res.data.list);
+        }
+      })
+      .catch((error) => {
+        console.log("API error->", error);
+      });
+  }, []);
+
   return (
     <>
-    {isShowNewFamilyModal && (
-          <NewFamilyModal onClose={closeNewFamilyModal} />
-        )}
+      <NewFamilyModal
+        newFamilyModalShow={newFamilyModalShow}
+        setNewFamilyModalShow={setNewFamilyModalShow}
+        setRefresh={setRefresh}
+        updateMode={updateMode}
+        setUpdateMode={setUpdateMode}
+        //formId={formId}
+        //setFormId={setFormId}
+      />
       <Header title={"خانوار تحت پوشش"}>
         <svg
           width="17"
@@ -45,12 +75,11 @@ const [selectedLocation, setSelectedLocation] = useState(null);
       <div className="w-full">
         <div className="w-full mr-26 my-3 flex justify-start items-center px-8">
           <Search
-          selectedResidenceStatus={selectedResidenceStatus}
-          setSelectedResidenceStatus={setSelectedResidenceStatus}
-          selectedLocation={selectedLocation}
-          setSelectedLocation={setSelectedLocation}/>
-          
-        
+            selectedResidenceStatus={selectedResidenceStatus}
+            setSelectedResidenceStatus={setSelectedResidenceStatus}
+            selectedLocation={selectedLocation}
+            setSelectedLocation={setSelectedLocation}
+          />
         </div>
         <div className="w-full mt-2">
           <div>
@@ -107,7 +136,7 @@ const [selectedLocation, setSelectedLocation] = useState(null);
               </div>
               <div className="flex gap-x-3 p-0 mb-2">
                 <button
-                  onClick={() => setIsShowNewFamilyModal(true)}
+                  onClick={() => setNewFamilyModalShow(true)}
                   className="flex items-center gap-x-1 font-DanaDemiBold text-xs rounded-lg bg-mainBlue text-white p-2"
                 >
                   <svg
@@ -192,16 +221,14 @@ const [selectedLocation, setSelectedLocation] = useState(null);
                 </button>
               </div>
             </div>
-             <div className="text-center mt-[18px] border border-tableBorder rounded-lg ">
+            <div className="text-center mt-[18px] border border-tableBorder rounded-lg ">
               <Table
-               tableHeaderDatas={tableHeaderDatas}
-              tableBodyDatas={tableBodyDatas}/>
-          
-        </div>
+                tableHeaderDatas={tableHeaderDatas}
+                tableBodyDatas={tableBodyDatas}
+              />
+            </div>
           </div>
         </div>
-        
-        
       </div>
     </>
   );
