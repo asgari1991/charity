@@ -1,15 +1,17 @@
-import React from "react";
+import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import Modal from "../general/Modal";
 import { Field, Form, Formik } from "formik";
-import axios from "axios";
+import axios from "../../axiosSetup";
 const LoginModal = ({ loginModalShow, setLoginModalShow }) => {
   const navigate = useNavigate();
-  
+
   const formValues = [
     { title: "نام کاربری", name: "userName", type: "text" },
     { title: "کلمه عبور", name: "password", type: "password" },
   ];
+  const [isSubmit, setIsSubmit] = useState(false);
+  const [errorMessage, setErrorMessage] = useState("");
 
   const initialValues = {
     userName: "",
@@ -18,19 +20,21 @@ const LoginModal = ({ loginModalShow, setLoginModalShow }) => {
 
   function onClose() {
     setLoginModalShow(false);
+    setIsSubmit(false);
   }
 
   const handleSubmit = async (values, { resetForm, setSubmitting }) => {
+    setIsSubmit(true);
     try {
-      const res = await axios.post(`http://195.88.208.6:5000/api/user/login`, {
+      const res = await axios.post(`/api/user/login`, {
         username: values.userName,
         password: values.password,
       });
 
       console.log("Login success:", res.data);
 
-      // example: save token
       localStorage.setItem("token", res.data.token);
+      localStorage.setItem("name", res.data.user.name);
 
       resetForm();
       setLoginModalShow(false);
@@ -38,9 +42,7 @@ const LoginModal = ({ loginModalShow, setLoginModalShow }) => {
       navigate("/dashboard");
     } catch (error) {
       console.error("Login error:", error);
-      alert(
-        error.response?.data?.message || "نام کاربری یا کلمه عبور اشتباه است"
-      );
+      setErrorMessage(error.response?.data?.message);
     } finally {
       setSubmitting(false);
     }
@@ -67,17 +69,22 @@ const LoginModal = ({ loginModalShow, setLoginModalShow }) => {
                       placeholder={item.title}
                       name={item.name}
                       type={item.type}
-                      className="w-[350px] sm:w-[300px] h-[55px] border border-[#9F9F9F] rounded-[10px] px-[30px] focus:outline-[#9F9F9F]"
+                      className="w-[350px] sm:w-[300px] h-[50px] border border-[#9F9F9F] rounded-[10px] px-[30px] focus:outline-[#9F9F9F]"
                     />
                   </div>
                 ))}
+                {isSubmit && errorMessage && (
+                  <p className="text-red-500 text-[13px] font-DanaDemiBold">
+                    {errorMessage}
+                  </p>
+                )}
 
                 <button
                   type="submit"
                   disabled={isSubmitting}
-                  className="bg-[#4E6F88] mt-[20px] py-3 px-12 text-white rounded-[8px] disabled:opacity-50"
+                  className="bg-[#4E6F88] mt-[20px] py-2 px-12 text-white rounded-[12px] disabled:opacity-50"
                 >
-                  {isSubmitting ? "در حال ارسال..." : "ثبت"}
+                  {isSubmitting ? "در حال ورود..." : "ورود"}
                 </button>
               </Form>
             )}
