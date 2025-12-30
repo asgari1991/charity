@@ -39,7 +39,7 @@ const LoginModal = ({ loginModalShow, setLoginModalShow }) => {
       resetForm();
       setLoginModalShow(false);
       // Redirect to dashboard after successful login
-      navigate("/dashboard");
+      navigate("/dashboard/families");
     } catch (error) {
       console.error("Login error:", error);
       setErrorMessage(error.response?.data?.message);

@@ -16,7 +16,7 @@ export default function SideBar() {
           {/*Nav Menu*/}
           <ul className=" space-y-[28px] text-base leading-6 font-DanaMedium child:flex child:items-center child:justify-start child:gap-x-[14px] pr-[63px]">
             <NavLink 
-              to={"/families"}
+              to="/dashboard/families"
               className={({ isActive }) => 
                 isActive ? "font-DanaBold text-mainBlue" : "text-mainBlue/75 font-Dana"
               }
@@ -58,7 +58,7 @@ export default function SideBar() {
             </NavLink>
 
             <NavLink 
-              to={"/volunteer"}
+              to="/dashboard/volunteer"
               className={({ isActive }) => 
                 isActive ? "font-DanaBold text-mainBlue" : "text-mainBlue/75 font-Dana"
               }
@@ -116,7 +116,7 @@ export default function SideBar() {
               خیرین
             </NavLink>
             <NavLink 
-              to={"/massenger"}
+              to="/dashboard/massenger"
               className={({ isActive }) => 
                 isActive ? "font-DanaBold text-mainBlue" : "text-mainBlue/75 font-Dana"
               }
@@ -136,7 +136,7 @@ export default function SideBar() {
               ارسال پیامک
             </NavLink>
             <NavLink 
-              to={"/financial"}
+              to="/dashboard/financial"
               className={({ isActive }) => 
                 isActive ? "font-DanaBold text-mainBlue" : "text-mainBlue/75 font-Dana"
               }
@@ -156,7 +156,7 @@ export default function SideBar() {
               مالی
             </NavLink>
             <NavLink 
-              to={"/settings"}
+              to="/dashboard/settings"
               className={({ isActive }) => 
                 isActive ? "font-DanaBold text-mainBlue" : "text-mainBlue/75 font-Dana"
               }
@@ -176,7 +176,7 @@ export default function SideBar() {
               تنظیمات
             </NavLink>
             <NavLink 
-              to={"/reports"}
+              to="/dashboard/reports"
               className={({ isActive }) => 
                 isActive ? "font-DanaBold text-mainBlue" : "text-mainBlue/75 font-Dana"
               }
