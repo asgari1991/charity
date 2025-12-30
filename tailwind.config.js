@@ -17,9 +17,16 @@ module.exports = {
         MorabbaMedium: "Morabba Medium",
         MorabbaBold: "Morabba Bold",
       },
-      fontSize:{
+      fontSize: {
         sxs: "10px"
-      }
+      },
+      // Use relative paths so Webpack can resolve these files during build.
+      backgroundImage: {
+        mainBg1: "url('../public/img/mainBg1.png')",
+        cooperationBg: "url('../public/img/cooperationBg.png')",
+        features: "url('../public/img/featureBg.png')",
+        aboutUsBg: "url('../public/img/about-us/aboutUsBg.png')",
+      },
     },
   },
   plugins: [
