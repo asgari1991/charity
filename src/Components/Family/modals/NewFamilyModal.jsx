@@ -5,7 +5,7 @@ import { Transition, Dialog } from "@headlessui/react";
 import Table from "./table/Table";
 
 import CustomDateInput from "../../general/date-picker/CustomDateInput";
-import axios from "axios";
+import axios from "../../../axiosSetup";
 import ComboBox from "../../general/combox/ComboBox";
 const NewFamilyModal = ({
   newFamilyModalShow,
@@ -149,7 +149,7 @@ setSuccessModalShow
     };
 
     axios
-      .post(`http://195.88.208.6:5000/api/families`, requestBody)
+      .post(`/api/families`, requestBody)
       .then((res) => {
         if (res.status === 201) {
 setSuccessModalShow(true)
@@ -265,7 +265,7 @@ setSuccessModalShow(true)
 useEffect(() => {
     if (!updateMode) {
       axios
-        .get(`http://195.88.208.6:5000/api/physicalStatus`)
+        .get(`/api/physicalStatus`)
         .then((res) => {
           setPhysicalStatusList(res.data);
         })
@@ -277,7 +277,7 @@ useEffect(() => {
   useEffect(() => {
     if (!updateMode) {
       axios
-        .get(`http://195.88.208.6:5000/api/insuranceTypes`)
+        .get(`/api/insuranceTypes`)
         .then((res) => {
           setInsuranceTypes(res.data.list);
           
@@ -291,7 +291,7 @@ useEffect(() => {
   useEffect(() => {
     if (!updateMode) {
       axios
-        .get(`http://195.88.208.6:5000/api/houseStatus`)
+        .get(`/api/houseStatus`)
         .then((res) => {
           setHousingStatus(res.data);
           
@@ -305,7 +305,7 @@ useEffect(() => {
     useEffect(() => {
     if (!updateMode) {
       axios
-        .get(`http://195.88.208.6:5000/api/supportOrgs`)
+        .get(`/api/supportOrgs`)
         .then((res) => {
           setSupportingOrgs(res.data);
           
@@ -319,7 +319,7 @@ useEffect(() => {
      useEffect(() => {
     if (!updateMode) {
       axios
-        .get(`http://195.88.208.6:5000/api/educationStatus`)
+        .get(`/api/educationStatus`)
         .then((res) => {
           setEducationStatusList(res.data);
           
@@ -333,7 +333,7 @@ useEffect(() => {
      useEffect(() => {
     if (!updateMode) {
       axios
-        .get(`http://195.88.208.6:5000/api/caretakerStatus`)
+        .get(`/api/caretakerStatus`)
         .then((res) => {
           setCaretakerStatusList(res.data);
         })
@@ -345,7 +345,7 @@ useEffect(() => {
    useEffect(() => {
     if (!updateMode) {
       axios
-        .get(`http://195.88.208.6:5000/api/regions`)
+        .get(`/api/regions`)
         .then((res) => {
           setRegionList(res.data);
         })

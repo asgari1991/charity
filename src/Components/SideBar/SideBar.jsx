@@ -5,7 +5,7 @@ export default function SideBar() {
   return (
     <div className=" fixed flex-1 w-[320px] h-[1025px] border-l-2 border-l-mainBlue/15 ">
       <div className=" relative">
-        <img src="./img/sideImg.jpg" alt="sideBar" className="h-[332px]" />
+        <img src="/img/sideImg.jpg" alt="sideBar" className="h-[332px]" />
         <div className="absolute top-0 gradient w-[320px] h-[437px] z-49 border-l-2"></div>
 
         <div className="absolute w-full top-[300px]  text-mainBlue z-50">

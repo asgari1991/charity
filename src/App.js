@@ -27,6 +27,7 @@ function App() {
         { path: "events", element: <Events /> },
         { path: "reports", element: <Reports /> },
         { path: "shop", element: <Shop /> },
+        
       ],
     },
     {
