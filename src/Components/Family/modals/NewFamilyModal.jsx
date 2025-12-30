@@ -13,6 +13,8 @@ const NewFamilyModal = ({
   setRefresh,
   updateMode,
   setUpdateMode,
+  successModalShow,
+setSuccessModalShow
 }) => {
   // ---------------------------------------------------------------------
   const [selectedBirthDate, setSelectedBirthDate] = useState("");
@@ -37,6 +39,7 @@ const NewFamilyModal = ({
   const [familyAddress, setFamilyAddress] = useState("");
   const [familyPhone, setFamilyPhone] = useState("");
   const [employmentFields, setEmploymentFields] = useState("");
+ 
   //-------------------------------------------------------
   const [physicalStatusList, setPhysicalStatusList] = useState([]);
   const [physicalStatus, setPhysicalStatus] = useState("");
@@ -49,6 +52,8 @@ const NewFamilyModal = ({
   const [housingStatus, setHousingStatus] = useState([]);
   const [supportingOrgs, setSupportingOrgs] = useState([]);
   const [regionList, setRegionList] = useState([]);
+  const [educationStatusList, setEducationStatusList] = useState([]);
+  const [caretakerStatusList, setCaretakerStatusList] = useState([]);
   //-------------------------------------------------------
   const [memberId, setMemberId] = useState("");
   const [memberName, setMemberName] = useState("");
@@ -61,6 +66,7 @@ const NewFamilyModal = ({
   const [memberBirthdate, setMemberBirthdate] = useState("");
   const [memberBirthdateKey, setMemberBirthdateKey] = useState(false);
   const [memberPhysicalStatus, setMemberPhysicalStatus] = useState("");
+  const [memberCaretakerStatus, setMemberCaretakerStatus] = useState("");
   //-------------------------------------------------------
   const [familyMembers, setFamilyMembers] = useState([]);
   const [totalAmount, setTotalAmount] = useState();
@@ -107,22 +113,22 @@ const NewFamilyModal = ({
       first_name: member.memberName?.split(' ')[0] || "",
       last_name: member.memberName?.split(' ').slice(1).join(' ') || "",
       father_name: member.memberFatherName || "",
-      gender: member.memberGender === "مرد" ? 0 : 1,
+      gender: member.memberGender === "مرد" ? 1 : 2,
       national_code: member.memberNationalCode || "",
       birth_date: member.memberBirthdate || "",
       physical_status_id: member.memberPhysicalStatus?.id || 1,
-      caretaker_status_id: member.memberStatus?.id || 1,
-      education_status_id: member.memberEducationStatus?.id || 1,
+      caretaker_status_id: member.memberCaretakerStatus?.caretaker_status_id,
+      education_status_id: member.memberEducationStatus?.education_status_id,
     }));
 
     const requestBody = {
       family: {
-        insurance_type_id: selectedInsuranceType?.id || 1,
-        house_status_id: selectedHousingStatus?.id || 1,
+        insurance_type_id: selectedInsuranceType?.insurance_type_id,
+        house_status_id: selectedHousingStatus?.house_status_id,
         address: familyAddress || "",
         phone: familyPhone || "",
         region_id: selectedRegion?.id || 1,
-        support_orgs_id: selectedSupportingOrg?.id || 1,
+        support_orgs_id: selectedSupportingOrg?.support_orgs_id,
         employment_fields: employmentFields || "",
       },
       family_head: {
@@ -136,16 +142,17 @@ const NewFamilyModal = ({
         bank_account: headBankAccount || "",
         job: headJob || "",
         gender: gender?.id === 1 ? 1 : 2, // مرد=1, زن=2
-        physical_status_id: physicalStatus?.id || 1,
+        physical_status_id: physicalStatus?.physical_status_id,
         lonely_reason: headLonelyReason || "",
       },
       family_members: formattedFamilyMembers,
     };
 
     axios
-      .post(`195.88.208.6:5000/api/families`, requestBody)
+      .post(`http://195.88.208.6:5000/api/families`, requestBody)
       .then((res) => {
-        if (res.data === "success") {
+        if (res.status === 201) {
+setSuccessModalShow(true)
           setRefresh((prev) => !prev);
           onClose();
           // Reset form
@@ -205,15 +212,20 @@ const NewFamilyModal = ({
       }
 
       const newMember = {
-        memberName: memberName,
-        memberFatherName: memberFatherName,
-        memberNationalCode: memberNationalCode,
-        memberRelation: memberRelation,
-        memberStatus: memberStatus,
-        memberEducationStatus: memberEducationStatus,
-        memberGender: memberGender.name,
-        memberBirthdate: memberBirthdate,
-        memberPhysicalStatus: memberPhysicalStatus,
+        memberName: memberName || "",
+        memberFatherName: memberFatherName || "",
+        memberNationalCode: memberNationalCode || "",
+        memberRelation: memberRelation || "",
+        memberCaretakerStatus: memberCaretakerStatus?.caretaker_status_name  || "",
+        memberEducationStatus: memberEducationStatus?.education_status_name || "",
+        memberGender: memberGender?.name || memberGender || "",
+        memberBirthdate: memberBirthdate || "",
+        memberPhysicalStatus: memberPhysicalStatus?.physical_status_name  || "",
+        // Store IDs for API submission
+        memberCaretakerStatusId: memberCaretakerStatus?.id || null,
+        memberEducationStatusId: memberEducationStatus?.id || null,
+        memberGenderId: memberGender?.id || null,
+        memberPhysicalStatusId: memberPhysicalStatus?.id || null,
       };
 
       const updated = [...prevMembers, newMember];
@@ -230,6 +242,7 @@ const NewFamilyModal = ({
       setMemberGender("");
       setMemberBirthdate("");
       setMemberPhysicalStatus("");
+      setMemberCaretakerStatus("");
       setIsSubmitMember(false);
       setMemberBirthdateKey((prev) => !prev);
 
@@ -249,13 +262,92 @@ const NewFamilyModal = ({
     setIsSubmit(false);
     setValidationErrors({});
   };
-
+useEffect(() => {
+    if (!updateMode) {
+      axios
+        .get(`http://195.88.208.6:5000/api/physicalStatus`)
+        .then((res) => {
+          setPhysicalStatusList(res.data);
+        })
+        .catch((error) => {
+          console.log(error);
+        });
+    }
+  }, [newFamilyModalShow]);
   useEffect(() => {
     if (!updateMode) {
       axios
-        .get(`195.88.208.6:5000/api/physicalStatus`)
+        .get(`http://195.88.208.6:5000/api/insuranceTypes`)
         .then((res) => {
-          setPhysicalStatusList(res.data);
+          setInsuranceTypes(res.data.list);
+          
+          
+        })
+        .catch((error) => {
+          console.log(error);
+        });
+    }
+  }, [newFamilyModalShow]);
+  useEffect(() => {
+    if (!updateMode) {
+      axios
+        .get(`http://195.88.208.6:5000/api/houseStatus`)
+        .then((res) => {
+          setHousingStatus(res.data);
+          
+          
+        })
+        .catch((error) => {
+          console.log(error);
+        });
+    }
+  }, [newFamilyModalShow]);
+    useEffect(() => {
+    if (!updateMode) {
+      axios
+        .get(`http://195.88.208.6:5000/api/supportOrgs`)
+        .then((res) => {
+          setSupportingOrgs(res.data);
+          
+          
+        })
+        .catch((error) => {
+          console.log(error);
+        });
+    }
+  }, [newFamilyModalShow]);
+     useEffect(() => {
+    if (!updateMode) {
+      axios
+        .get(`http://195.88.208.6:5000/api/educationStatus`)
+        .then((res) => {
+          setEducationStatusList(res.data);
+          
+          
+        })
+        .catch((error) => {
+          console.log(error);
+        });
+    }
+  }, [newFamilyModalShow]);
+     useEffect(() => {
+    if (!updateMode) {
+      axios
+        .get(`http://195.88.208.6:5000/api/caretakerStatus`)
+        .then((res) => {
+          setCaretakerStatusList(res.data);
+        })
+        .catch((error) => {
+          console.log(error);
+        });
+    }
+  }, [newFamilyModalShow]);
+   useEffect(() => {
+    if (!updateMode) {
+      axios
+        .get(`http://195.88.208.6:5000/api/regions`)
+        .then((res) => {
+          setRegionList(res.data);
         })
         .catch((error) => {
           console.log(error);
@@ -383,7 +475,7 @@ const NewFamilyModal = ({
                               onChange={(e) => setHeadPhone(e.target.value)}
                               className="border border-mainBlue/25 px-2.5 py-2 rounded-lg text-sxs font-DanaMedium"
                             />
-                            <div className="relative flex items-center">
+                            <div className="relative flex items-center z-[1000000]">
                               <ComboBox
                                 title="وضعیت جسمانی"
                                 data={physicalStatusList}
@@ -391,7 +483,7 @@ const NewFamilyModal = ({
                                 onChangeHandler={(value) =>
                                   setPhysicalStatus(value)
                                 }
-                                itemName={(item) => item.status}
+                                itemName={(item) => item.physical_status_name}
                                 color="#420E5A"
                                 ringColor="#4E6F88"
                                 rounded="8px"
@@ -476,7 +568,7 @@ const NewFamilyModal = ({
                               className="border border-mainBlue/25 px-2.5 py-2 rounded-lg text-sxs font-DanaMedium"
                             />
                           </div>
-                          <div className="relative z-[10000] mb-[20px] border-[1px] border-tableBorder flex rounded-lg flex-wrap py-4 gap-3 px-5 w-full">
+                          <div className="relative z-[40] mb-[20px] border-[1px] border-tableBorder flex rounded-lg flex-wrap py-4 gap-3 px-5 w-full">
                             <span
                               className={`${`text-[10px] right-[6px] left-18 -top-2 px-[4px]`} absolute group-focus-within:px-[4px] 
       min-w-max cursor-text  ease-in-out duration-500  font-iranSans text-mainBlue text-left transition-all bg-white`}
@@ -492,7 +584,7 @@ const NewFamilyModal = ({
                                 onChangeHandler={(value) =>
                                   setSelectedInsuranceType(value)
                                 }
-                                itemName={(item) => item.status}
+                                itemName={(item) => item.insurance_type_name}
                                 color="#420E5A"
                                 ringColor="#4E6F88"
                                 rounded="8px"
@@ -517,7 +609,7 @@ const NewFamilyModal = ({
                                 </svg>
                               )}
                             </div>
-                            <div className="relative flex items-center">
+                            <div className="relative flex items-center z-40">
                               <ComboBox
                                 title="وضعیت مسکن"
                                 data={housingStatus}
@@ -525,7 +617,7 @@ const NewFamilyModal = ({
                                 onChangeHandler={(value) =>
                                   setSelectedHousingStatus(value)
                                 }
-                                itemName={(item) => item.status}
+                                itemName={(item) => item.house_status_name}
                                 color="#420E5A"
                                 ringColor="#4E6F88"
                                 rounded="8px"
@@ -572,7 +664,7 @@ const NewFamilyModal = ({
                                 onChangeHandler={(value) =>
                                   setSelectedRegion(value)
                                 }
-                                itemName={(item) => item.status}
+                                itemName={(item) => item.region_name}
                                 color="#420E5A"
                                 ringColor="#4E6F88"
                                 rounded="8px"
@@ -605,7 +697,7 @@ const NewFamilyModal = ({
                                 onChangeHandler={(value) =>
                                   setSelectedSupportingOrg(value)
                                 }
-                                itemName={(item) => item.status}
+                                itemName={(item) => item.support_orgs_name}
                                 color="#420E5A"
                                 ringColor="#4E6F88"
                                 rounded="8px"
@@ -639,7 +731,7 @@ const NewFamilyModal = ({
                             />
                           </div>
                           
-                          <div className="relative z-[10000] mb-[20px] border-[1px] border-tableBorder flex rounded-lg flex-wrap py-4 gap-3 px-5 w-full">
+                          <div className="relative mb-[20px] border-[1px] border-tableBorder flex rounded-lg flex-wrap py-4 gap-3 px-5 w-full">
                             <span
                               className={`${`text-[10px] right-[6px] left-18 -top-2 px-[4px]`} absolute group-focus-within:px-[4px] 
       min-w-max cursor-text  ease-in-out duration-500  font-iranSans text-mainBlue text-left transition-all bg-white`}
@@ -716,7 +808,7 @@ const NewFamilyModal = ({
                                 onChangeHandler={(value) =>
                                   setMemberPhysicalStatus(value)
                                 }
-                                itemName={(item) => item.status}
+                                itemName={(item) => item.physical_status_name}
                                 color="#420E5A"
                                 ringColor="#4E6F88"
                                 rounded="8px"
@@ -755,22 +847,72 @@ const NewFamilyModal = ({
                                 </span>
                               )}
                             </div>
-                            <input
-                              type="text"
-                              placeholder="وضعیت سرپرستی "
-                              value={memberStatus}
-                              onChange={(e) => setMemberStatus(e.target.value)}
-                              className="border border-mainBlue/25 px-2.5 py-2 rounded-lg text-sxs font-DanaMedium"
-                            />
-                            <input
-                              type="text"
-                              placeholder="وضعیت تحصیلی  "
-                              value={memberEducationStatus}
-                              onChange={(e) =>
-                                setMemberEducationStatus(e.target.value)
-                              }
-                              className="border border-mainBlue/25 px-2.5 py-2 rounded-lg text-sxs font-DanaMedium"
-                            />
+                             <div className="relative flex items-center">
+                              <ComboBox
+                                title="وضعیت سرپرستی"
+                                data={caretakerStatusList}
+                                selectedValue={memberCaretakerStatus}
+                                onChangeHandler={(value) =>
+                                  setMemberCaretakerStatus(value)
+                                }
+                                itemName={(item) => item.caretaker_status_name}
+                                color="#420E5A"
+                                ringColor="#4E6F88"
+                                rounded="8px"
+                              />
+                              {memberCaretakerStatus && (
+                                <svg
+                                  onClick={() => {
+                                    setMemberCaretakerStatus("");
+                                  }}
+                                  xmlns="http://www.w3.org/2000/svg"
+                                  fill="none"
+                                  viewBox="0 0 24 24"
+                                  stroke-width="1.5"
+                                  stroke="currentColor"
+                                  class="size-5 text-mainBlue cursor-pointer  left-2 top-[7px] absolute"
+                                >
+                                  <path
+                                    stroke-linecap="round"
+                                    stroke-linejoin="round"
+                                    d="M6 18 18 6M6 6l12 12"
+                                  />
+                                </svg>
+                              )}
+                            </div>
+                          <div className="relative flex items-center">
+                              <ComboBox
+                                title="وضعیت تحصیلی"
+                                data={educationStatusList}
+                                selectedValue={memberEducationStatus}
+                                onChangeHandler={(value) =>
+                                  setMemberEducationStatus(value)
+                                }
+                                itemName={(item) => item.education_status_name}
+                                color="#420E5A"
+                                ringColor="#4E6F88"
+                                rounded="8px"
+                              />
+                              {memberEducationStatus && (
+                                <svg
+                                  onClick={() => {
+                                    setMemberEducationStatus("");
+                                  }}
+                                  xmlns="http://www.w3.org/2000/svg"
+                                  fill="none"
+                                  viewBox="0 0 24 24"
+                                  stroke-width="1.5"
+                                  stroke="currentColor"
+                                  class="size-5 text-mainBlue cursor-pointer  left-2 top-[7px] absolute"
+                                >
+                                  <path
+                                    stroke-linecap="round"
+                                    stroke-linejoin="round"
+                                    d="M6 18 18 6M6 6l12 12"
+                                  />
+                                </svg>
+                              )}
+                            </div>
                             <Button
                               onClick={(e) => {
                                 e.preventDefault();

@@ -32,17 +32,16 @@ const TableBody = ({
         {item.memberNationalCode}
       </td>
       <td dir="rtl" className="py-3 px-5 text-[13px] text-center font-iranSans">
-        {item.memberGender}
-       
+        {item.memberGender || "-"}
       </td>
       <td dir="rtl" className="py-3 px-5 text-[13px] text-center font-iranSans">
-    {item.memberEducationStatus}
+        {item.memberEducationStatus || "-"}
       </td>
       <td dir="rtl" className="py-3 px-5 text-[13px] text-center font-iranSans">
-    {item.memberRelation}
+        {item.memberRelation || "-"}
       </td>
-       <td dir="rtl" className="py-3 px-5 text-[13px] text-center font-iranSans">
-    {item.memberStatus}
+      <td dir="rtl" className="py-3 px-5 text-[13px] text-center font-iranSans">
+        {item.memberCaretakerStatus || "-"}
       </td>
       <td dir="rtl" className="py-3 px-5 text-[13px] text-center font-iranSans">
         <div className="flex justify-center items-center">

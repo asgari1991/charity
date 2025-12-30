@@ -4,44 +4,43 @@ import Header from "../Header/Header";
 import Search from "./search/Search";
 import Table from "./table/Table";
 import axios from "axios";
-import NewFamilyModal from "./modals/NewFamilyModal";
+import NewVolunteerModal from "./modals/NewVolunteerModal";
 import GeneralSuccessModal from "../general/modals/GeneralSuccessModal";
 
 export default function Family() {
   //----------------------------------------------------------------
-  const [newFamilyModalShow, setNewFamilyModalShow] = useState(false);
-  const [successModalShow, setSuccessModalShow] = useState(false);
+  const [newVolunteerModalShow, setNewVolunteerModalShow] = useState(false);
+  const [successModalShow,setSuccessModalShow]=useState(false)
   const [refresh, setRefresh] = useState(false);
   //----------------------------------------------------------------
   const [updateMode, setUpdateMode] = useState(false);
-  const [selectedResidenceStatus, setSelectedResidenceStatus] = useState(null);
-  const [selectedLocation, setSelectedLocation] = useState(null);
-  const [selectedFamilyHead, setSelectedFamilyHead] = useState(null);
-  const [selectedJob, setSelectedJob] = useState(null);
+  const [selectedVolunteer, setSelectedVolunteer] = useState(null);
+  const [selectedVolunteerCode, setSelectedVolunteerCode] = useState(null);
   //----------------------------------------------------------------
   const [tableBodyDatas, setTableBodyDatas] = useState([]);
   const [tableHeaderDatas, setTableHeaderDatas] = useState([
     "ردیف",
-    " نام و نام خانوادگی سرپرست",
-    "کدملی",
+    "کد خیر",
+    " نام و نام خانوادگی",
+    "تلفن همراه",
     "شغل",
-    "تعداد اعضای خانواده",
-    "وضعیت مسکن",
-    "منطقه",
+    "معرف",
+    "بانک",
+    "شماره کارت",
     "مشاهده پروفایل ",
   ]);
   useEffect(() => {
     axios
-      .get("http://195.88.208.6:5000/api/families", {
+      .get("http://195.88.208.6:5000/api/donors", {
         params: {
-          family_head_id: selectedFamilyHead,
-          job: selectedJob,
-          house_status_id: selectedResidenceStatus,
+         // family_head_id: selectedFamilyHead,
+         // job: selectedJob,
+         // house_status_id: selectedResidenceStatus,
         },
       })
       .then((res) => {
         if (res.status === 200) {
-          setTableBodyDatas(res.data.list);
+          setTableBodyDatas(res.data);
         }
       })
       .catch((error) => {
@@ -51,21 +50,20 @@ export default function Family() {
 
   return (
     <>
-      <NewFamilyModal
-        newFamilyModalShow={newFamilyModalShow}
-        setNewFamilyModalShow={setNewFamilyModalShow}
-        setSuccessModalShow={setSuccessModalShow}
+      <NewVolunteerModal
+        newVolunteerModalShow={newVolunteerModalShow}
+        setNewVolunteerModalShow={setNewVolunteerModalShow}
         setRefresh={setRefresh}
         updateMode={updateMode}
         setUpdateMode={setUpdateMode}
+        setSuccessModalShow={setSuccessModalShow}
         //formId={formId}
         //setFormId={setFormId}
       />
       <GeneralSuccessModal
-        successModalShow={successModalShow}
-        setSuccessModalShow={setSuccessModalShow}
-      />
-      <Header title={"خانوار تحت پوشش"}>
+      successModalShow={successModalShow}
+      setSuccessModalShow={setSuccessModalShow}/>
+      <Header title={"خیرین"}>
         <svg
           width="17"
           height="21"
@@ -82,18 +80,18 @@ export default function Family() {
       <div className="w-full">
         <div className="w-full mr-26 my-3 flex justify-start items-center px-8">
           <Search
-            selectedResidenceStatus={selectedResidenceStatus}
-            setSelectedResidenceStatus={setSelectedResidenceStatus}
-            selectedLocation={selectedLocation}
-            setSelectedLocation={setSelectedLocation}
+            selectedVolunteer={selectedVolunteer}
+            setSelectedVolunteer={setSelectedVolunteer}
+            selectedVolunteerCode={selectedVolunteerCode}
+            setSelectedVolunteerCode={setSelectedVolunteerCode}
           />
         </div>
         <div className="w-full mt-2">
           <div>
             <h1 className="font-DanaDemiBold font-semibold">
-              لیست سرپرستان خانوار
+  لیست خیرین
             </h1>
-            <span>لیست خانواده های تحت پوشش موسسه</span>
+            <span>لیست خیرین و حامیان موسسه</span>
           </div>
           <div className=" min-w-full">
             <div className="flex justify-between w-full px-5 border-t-2 pt-3 items-center border-[#0073F614]">
@@ -143,7 +141,7 @@ export default function Family() {
               </div>
               <div className="flex gap-x-3 p-0 mb-2">
                 <button
-                  onClick={() => setNewFamilyModalShow(true)}
+                  onClick={() => setNewVolunteerModalShow(true)}
                   className="flex items-center gap-x-1 font-DanaDemiBold text-xs rounded-lg bg-mainBlue text-white p-2"
                 >
                   <svg
@@ -175,7 +173,7 @@ export default function Family() {
                       strokeLinejoin="round"
                     />
                   </svg>
-                  ثبت خانواده جدید
+                  ثبت خیر جدید
                 </button>
                 <button
                   className="flex items-center gap-x-1 font-DanaDemiBold text-xs rounded-lg border border-mainBlue bg-white
