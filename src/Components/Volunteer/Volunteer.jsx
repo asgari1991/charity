@@ -27,7 +27,7 @@ export default function Family() {
     "معرف",
     "بانک",
     "شماره کارت",
-    "مشاهده پروفایل ",
+    // "مشاهده پروفایل ",
   ]);
   useEffect(() => {
     axios
