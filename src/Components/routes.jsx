@@ -1,4 +1,4 @@
-import Benefactor from "./Benefactor/Benefactor";
+import Volunteer from "./Volunteer/Volunteer";
 import Family from "./Family/Family"
 import Financial from "./Financial/Financial";
 import Reports from "./Reports/Reports";
@@ -9,7 +9,7 @@ import Massenger from "./Massenger/Massenger";
 const routes = [
   {path: "/", element:<Family/>},
   { path: "/families", element: <Family/>},
-  { path: "/benefactors", element: <Benefactor /> },
+  { path: "/volunteer", element: <Volunteer /> },
   { path: "/massenger", element: <Massenger /> },
   { path: "/financial", element: <Financial /> },
   { path: "/settings", element: <Setting /> },
