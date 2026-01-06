@@ -2,8 +2,9 @@ import React, { Fragment, useEffect, useState } from "react";
 import Button from "../../general/button/Button";
 import { Transition, Dialog } from "@headlessui/react";
 import CustomDateInput from "../../general/date-picker/CustomDateInput";
-import axios from "axios";
+import axios from "../../../axiosSetup";
 import ComboBox from "../../general/combox/ComboBox";
+
 const NewVolunteerModal = ({
   newVolunteerModalShow,
   setNewVolunteerModalShow,
@@ -11,6 +12,8 @@ const NewVolunteerModal = ({
   setRefresh,
   updateMode,
   setUpdateMode,
+  volunteerId,
+  setVolunteerId,
 }) => {
   //-------------------------------------------------------
   // Volunteer states
@@ -31,6 +34,29 @@ const NewVolunteerModal = ({
   const [validationErrors, setValidationErrors] = useState({});
   //-------------------------------------------------------
 
+  useEffect(() => {
+    if (volunteerId && newVolunteerModalShow) {
+      axios
+        .get(`/api/donors/info`, {
+          params: {
+            donor_id: volunteerId,
+          },
+        })
+        .then((res) => {
+          if (res.status === 200) {
+            setVolunteerFirstName(res.data?.name);
+            setVolunteerLastName(res.data?.family);
+            setVolunteerPhone(res.data?.mobile);
+            setVolunteerBank(res.data?.bank);
+            setVolunteerBankAccount(res.data?.account_number);
+          }
+        })
+        .catch((error) => {
+          console.error("Error:", error);
+        });
+    }
+  }, [newVolunteerModalShow]);
+
   const onSubmitHandler = (e) => {
     e.preventDefault();
     setIsSubmit(true);
@@ -50,41 +76,72 @@ const NewVolunteerModal = ({
     setValidationErrors({});
 
     const requestBody = {
+      donor_id: updateMode ? volunteerId : null,
       name: volunteerFirstName,
       family: volunteerLastName,
       mobile: volunteerPhone,
       bank: volunteerBank,
       account_number: volunteerBankAccount,
     };
+    if (updateMode) {
+      axios
+        .put(`/api/donors`, requestBody)
+        .then((res) => {
+          if (res.status === 200) {
+            setSuccessModalShow(true);
+            setRefresh((prev) => !prev);
+            onClose();
+            // Reset form
+            setVolunteerFirstName("");
+            setVolunteerLastName("");
+            setVolunteerPhone("");
+            setVolunteerBank("");
+            setVolunteerBankAccount("");
 
-    axios
-      .post(`http://195.88.208.6:5000/api/donors`, requestBody)
-      .then((res) => {
-        if (res.status===201) {
-        setSuccessModalShow(true)
-          setRefresh((prev) => !prev);
-          onClose();
-          // Reset form
-          setVolunteerFirstName("");
-          setVolunteerLastName("");
-          setVolunteerPhone("");
-          setVolunteerBank("");
-          setVolunteerBankAccount("");
-
+            setIsSubmit(false);
+          }
+        })
+        .catch((error) => {
+          console.error("Error updating volunteer:", error);
           setIsSubmit(false);
-        }
-      })
-      .catch((error) => {
-        console.error("Error submitting volunteer:", error);
-        setIsSubmit(false);
-      });
+        });
+    } else {
+      axios
+        .post(`/api/donors`, requestBody)
+        .then((res) => {
+          if (res.status === 201) {
+            setSuccessModalShow(true);
+            setRefresh((prev) => !prev);
+            onClose();
+            // Reset form
+            setVolunteerFirstName("");
+            setVolunteerLastName("");
+            setVolunteerPhone("");
+            setVolunteerBank("");
+            setVolunteerBankAccount("");
+
+            setIsSubmit(false);
+          }
+        })
+        .catch((error) => {
+          console.error("Error submitting volunteer:", error);
+          setIsSubmit(false);
+        });
+    }
   };
 
   const onClose = () => {
     setNewVolunteerModalShow(false);
     setTimeout(() => {
       setUpdateMode(false);
+      // reset form
+      setVolunteerFirstName("");
+      setVolunteerLastName("");
+      setVolunteerPhone("");
+      setVolunteerBank("");
+      setVolunteerBankAccount("");
     }, 200);
+    setVolunteerId(null);
     setIsSubmit(false);
     setValidationErrors({});
   };
@@ -219,9 +276,7 @@ const NewVolunteerModal = ({
                           type="text"
                           placeholder="بانک  "
                           value={volunteerBank}
-                          onChange={(e) =>
-                            setVolunteerBank(e.target.value)
-                          }
+                          onChange={(e) => setVolunteerBank(e.target.value)}
                           className="border border-mainBlue/25 px-2.5 py-2 rounded-lg text-sxs font-DanaMedium"
                         />
                         <input

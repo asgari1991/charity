@@ -4,7 +4,9 @@ import TableBody from "./TableBody";
 const Table = ({
   tableHeaderDatas,
   tableBodyDatas,
-  
+  setVolunteerId,
+  setNewVolunteerModalShow,
+  setUpdateMode,
 }) => {
   return (
     <table className="mx-auto min-w-full p-2">
@@ -30,7 +32,9 @@ const Table = ({
               key={item.customer_id}
               item={item}
               index={index}
-              
+              setVolunteerId={setVolunteerId}
+              setNewVolunteerModalShow={setNewVolunteerModalShow}
+              setUpdateMode={setUpdateMode}
             />
           );
         })}

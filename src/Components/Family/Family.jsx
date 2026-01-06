@@ -6,6 +6,7 @@ import Table from "./table/Table";
 import axios from "axios";
 import NewFamilyModal from "./modals/NewFamilyModal";
 import GeneralSuccessModal from "../general/modals/GeneralSuccessModal";
+import Paging from "../general/paging/Paging";
 
 export default function Family() {
   //----------------------------------------------------------------
@@ -18,6 +19,9 @@ export default function Family() {
   const [selectedLocation, setSelectedLocation] = useState(null);
   const [selectedFamilyHead, setSelectedFamilyHead] = useState(null);
   const [selectedJob, setSelectedJob] = useState(null);
+  //----------------------------------------------------------------
+  const [totalPages, setTotalPages] = useState(null);
+  const [page, setPage] = useState(1);
   //----------------------------------------------------------------
   const [tableBodyDatas, setTableBodyDatas] = useState([]);
   const [tableHeaderDatas, setTableHeaderDatas] = useState([
@@ -37,11 +41,17 @@ export default function Family() {
           family_head_id: selectedFamilyHead,
           job: selectedJob,
           house_status_id: selectedResidenceStatus,
+          page: page,
+          limit:10
         },
       })
       .then((res) => {
         if (res.status === 200) {
           setTableBodyDatas(res.data.list);
+          const totalHeader = Number(res.data.total);
+          setTotalPages(
+            Math.max(1, Math.ceil((isNaN(totalHeader) ? 0 : totalHeader) / 10))
+          );
         }
       })
       .catch((error) => {
@@ -80,7 +90,7 @@ export default function Family() {
         </svg>
       </Header>
       <div className="w-full">
-        <div className="w-full mr-26 my-3 flex justify-start items-center px-8">
+        <div className="w-full  my-3 flex justify-start items-center py-2">
           <Search
             selectedResidenceStatus={selectedResidenceStatus}
             setSelectedResidenceStatus={setSelectedResidenceStatus}
@@ -89,16 +99,16 @@ export default function Family() {
           />
         </div>
         <div className="w-full mt-2">
-          <div>
-            <h1 className="font-DanaDemiBold font-semibold">
+          <div className="text-[14px] border-r-[4px] pr-[10px] border-[#4E6F88]">
+            <h1 className="font-DanaDemiBold  font-semibold">
               لیست سرپرستان خانوار
             </h1>
             <span>لیست خانواده های تحت پوشش موسسه</span>
           </div>
           <div className=" min-w-full">
-            <div className="flex justify-between w-full px-5 border-t-2 pt-3 items-center border-[#0073F614]">
+            <div className="flex justify-between w-full px-5  pt-3 items-end ">
               {/*pagination */}
-              <div className="flex items-center justify-between w-[226px] mt-5">
+              {/* <div className="flex items-center justify-between w-[226px] mt-5">
                 <div className="flex items-center">
                   <svg
                     width="19"
@@ -140,8 +150,14 @@ export default function Family() {
                     />
                   </svg>
                 </div>
-              </div>
-              <div className="flex gap-x-3 p-0 mb-2">
+              </div> */}
+              <Paging
+                total={totalPages}
+                defaultPage={page}
+                onChange={setPage}
+                color="#4E6F88"
+              />
+              <div className="flex gap-x-3 p-0 ">
                 <button
                   onClick={() => setNewFamilyModalShow(true)}
                   className="flex items-center gap-x-1 font-DanaDemiBold text-xs rounded-lg bg-mainBlue text-white p-2"
@@ -228,7 +244,7 @@ export default function Family() {
                 </button>
               </div>
             </div>
-            <div className="text-center mt-[18px] border border-tableBorder rounded-lg ">
+            <div className="text-center mt-[12px] border border-tableBorder rounded-lg ">
               <Table
                 tableHeaderDatas={tableHeaderDatas}
                 tableBodyDatas={tableBodyDatas}

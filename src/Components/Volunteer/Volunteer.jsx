@@ -3,19 +3,24 @@ import React, { useEffect, useState } from "react";
 import Header from "../Header/Header";
 import Search from "./search/Search";
 import Table from "./table/Table";
-import axios from "axios";
+import axios from "../../axiosSetup";
 import NewVolunteerModal from "./modals/NewVolunteerModal";
 import GeneralSuccessModal from "../general/modals/GeneralSuccessModal";
+import Paging from "../general/paging/Paging";
 
 export default function Family() {
   //----------------------------------------------------------------
   const [newVolunteerModalShow, setNewVolunteerModalShow] = useState(false);
-  const [successModalShow,setSuccessModalShow]=useState(false)
+  const [successModalShow, setSuccessModalShow] = useState(false);
   const [refresh, setRefresh] = useState(false);
   //----------------------------------------------------------------
   const [updateMode, setUpdateMode] = useState(false);
+  const [volunteerId, setVolunteerId] = useState(null);
   const [selectedVolunteer, setSelectedVolunteer] = useState(null);
   const [selectedVolunteerCode, setSelectedVolunteerCode] = useState(null);
+  //----------------------------------------------------------------
+  const [totalPages, setTotalPages] = useState(null);
+  const [page, setPage] = useState(1);
   //----------------------------------------------------------------
   const [tableBodyDatas, setTableBodyDatas] = useState([]);
   const [tableHeaderDatas, setTableHeaderDatas] = useState([
@@ -27,15 +32,15 @@ export default function Family() {
     "معرف",
     "بانک",
     "شماره کارت",
-    // "مشاهده پروفایل ",
+    "ویرایش",
   ]);
   useEffect(() => {
     axios
-      .get("http://195.88.208.6:5000/api/donors", {
+      .get("/api/donors", {
         params: {
-         // family_head_id: selectedFamilyHead,
-         // job: selectedJob,
-         // house_status_id: selectedResidenceStatus,
+          // family_head_id: selectedFamilyHead,
+          // job: selectedJob,
+          // house_status_id: selectedResidenceStatus,
         },
       })
       .then((res) => {
@@ -57,12 +62,15 @@ export default function Family() {
         updateMode={updateMode}
         setUpdateMode={setUpdateMode}
         setSuccessModalShow={setSuccessModalShow}
+        volunteerId={volunteerId}
+        setVolunteerId={setVolunteerId}
         //formId={formId}
         //setFormId={setFormId}
       />
       <GeneralSuccessModal
-      successModalShow={successModalShow}
-      setSuccessModalShow={setSuccessModalShow}/>
+        successModalShow={successModalShow}
+        setSuccessModalShow={setSuccessModalShow}
+      />
       <Header title={"خیرین"}>
         <svg
           width="17"
@@ -78,7 +86,7 @@ export default function Family() {
         </svg>
       </Header>
       <div className="w-full">
-        <div className="w-full mr-26 my-3 flex justify-start items-center px-8">
+        <div className="w-full my-3 flex justify-start items-center py-2">
           <Search
             selectedVolunteer={selectedVolunteer}
             setSelectedVolunteer={setSelectedVolunteer}
@@ -87,59 +95,21 @@ export default function Family() {
           />
         </div>
         <div className="w-full mt-2">
-          <div>
-            <h1 className="font-DanaDemiBold font-semibold">
-  لیست خیرین
-            </h1>
+          <div className="text-[14px] border-r-[4px] pr-[10px] border-[#4E6F88]">
+            <h1 className="font-DanaDemiBold  font-semibold">لیست خیرین</h1>
             <span>لیست خیرین و حامیان موسسه</span>
           </div>
+
           <div className=" min-w-full">
-            <div className="flex justify-between w-full px-5 border-t-2 pt-3 items-center border-[#0073F614]">
+            <div className="flex justify-between w-full px-5  pt-3 items-end ">
               {/*pagination */}
-              <div className="flex items-center justify-between w-[226px] mt-5">
-                <div className="flex items-center">
-                  <svg
-                    width="19"
-                    height="18"
-                    viewBox="0 0 19 18"
-                    fill="none"
-                    xmlns="http://www.w3.org/2000/svg"
-                  >
-                    <path
-                      d="M7.6062 15.5031C7.46328 15.5031 7.32037 15.4506 7.20754 15.3381C6.98941 15.1206 6.98941 14.7606 7.20754 14.5431L12.1117 9.65313C12.4728 9.29313 12.4728 8.70813 12.1117 8.34812L7.20754 3.45813C6.98941 3.24063 6.98941 2.88063 7.20754 2.66313C7.42568 2.44563 7.78672 2.44563 8.00485 2.66313L12.9091 7.55312C13.2927 7.93562 13.5108 8.45313 13.5108 9.00063C13.5108 9.54813 13.3002 10.0656 12.9091 10.4481L8.00485 15.3381C7.89203 15.4431 7.74911 15.5031 7.6062 15.5031Z"
-                      fill="#4E6F88"
-                    />
-                  </svg>
-                  <span className="text-sxs">قبل</span>
-                </div>
-                <div className="flex items-center">
-                  <span className="text-xs pl-1">صفحه </span>
-                  <select className="w-12 border border-mainBlue rounded"></select>
-                </div>
-                <div className="flex items-center">
-                  <span className="text-xs pl-1">از </span>
-                  <input
-                    type="text"
-                    className="w-7 border border-mainBlue rounded"
-                  />
-                </div>
-                <div className="flex items-center">
-                  <span className="text-sxs">بعد</span>
-                  <svg
-                    width="19"
-                    height="18"
-                    viewBox="0 0 19 18"
-                    fill="none"
-                    xmlns="http://www.w3.org/2000/svg"
-                  >
-                    <path
-                      d="M11.5825 15.5031C11.4396 15.5031 11.2967 15.4506 11.1838 15.3381L6.27962 10.4481C5.48231 9.65313 5.48231 8.34812 6.27962 7.55312L11.1838 2.66313C11.402 2.44563 11.763 2.44563 11.9811 2.66313C12.1993 2.88063 12.1993 3.24063 11.9811 3.45813L7.07693 8.34812C6.71589 8.70813 6.71589 9.29313 7.07693 9.65313L11.9811 14.5431C12.1993 14.7606 12.1993 15.1206 11.9811 15.3381C11.8683 15.4431 11.7254 15.5031 11.5825 15.5031Z"
-                      fill="#4E6F88"
-                    />
-                  </svg>
-                </div>
-              </div>
-              <div className="flex gap-x-3 p-0 mb-2">
+              <Paging
+                total={totalPages}
+                defaultPage={page}
+                onChange={setPage}
+                color="#4E6F88"
+              />
+              <div className="flex gap-x-3 p-0 ">
                 <button
                   onClick={() => setNewVolunteerModalShow(true)}
                   className="flex items-center gap-x-1 font-DanaDemiBold text-xs rounded-lg bg-mainBlue text-white p-2"
@@ -226,10 +196,13 @@ export default function Family() {
                 </button>
               </div>
             </div>
-            <div className="text-center mt-[18px] border border-tableBorder rounded-lg ">
+            <div className="text-center mt-[12px] border border-tableBorder rounded-lg ">
               <Table
                 tableHeaderDatas={tableHeaderDatas}
                 tableBodyDatas={tableBodyDatas}
+                setVolunteerId={setVolunteerId}
+                setNewVolunteerModalShow={setNewVolunteerModalShow}
+                setUpdateMode={setUpdateMode}
               />
             </div>
           </div>
