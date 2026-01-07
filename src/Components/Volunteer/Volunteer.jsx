@@ -7,6 +7,8 @@ import axios from "../../axiosSetup";
 import NewVolunteerModal from "./modals/NewVolunteerModal";
 import GeneralSuccessModal from "../general/modals/GeneralSuccessModal";
 import Paging from "../general/paging/Paging";
+import AlertModal from "../general/modals/AlertModal";
+import ErrorModal from "../general/modals/ErrorModal";
 
 export default function Family() {
   //----------------------------------------------------------------
@@ -22,6 +24,10 @@ export default function Family() {
   const [totalPages, setTotalPages] = useState(null);
   const [page, setPage] = useState(1);
   //----------------------------------------------------------------
+  const [showAlertModal, setShowAlertModal] = useState(false);
+  const [showErrorModal, setShowErrorModal] = useState(false);
+  const [errorMessage, setErrorMessage] = useState();
+  //----------------------------------------------------------------
   const [tableBodyDatas, setTableBodyDatas] = useState([]);
   const [tableHeaderDatas, setTableHeaderDatas] = useState([
     "ردیف",
@@ -33,28 +39,60 @@ export default function Family() {
     "بانک",
     "شماره کارت",
     "ویرایش",
+    "حذف",
   ]);
   useEffect(() => {
     axios
       .get("/api/donors", {
         params: {
-          // family_head_id: selectedFamilyHead,
-          // job: selectedJob,
-          // house_status_id: selectedResidenceStatus,
+          name: selectedVolunteer,
+          donor_id: selectedVolunteerCode ? Number(selectedVolunteerCode) : null,
         },
       })
       .then((res) => {
         if (res.status === 200) {
-          setTableBodyDatas(res.data);
+          setTableBodyDatas(res.data?.list);
         }
       })
       .catch((error) => {
         console.log("API error->", error);
       });
-  }, [refresh]);
+  }, [refresh,selectedVolunteer,selectedVolunteerCode]);
+
+  function onDelete() {
+    if (!volunteerId) return;
+
+    axios
+      .delete(`api/donors/${volunteerId}`, {
+        // params: {
+        //   donor_id: volunteerId,
+        // },
+      })
+      .then((res) => {
+        setShowAlertModal(false);
+        setRefresh((prev) => !prev);
+      })
+      .catch((error) => {
+        console.log(error);
+        setShowAlertModal(false);
+        setErrorMessage(error?.response?.data?.error || "خطا در حذف");
+        setShowErrorModal(true);
+      })
+      .finally(() => setVolunteerId(null));
+  }
 
   return (
     <>
+      <AlertModal
+        showModal={showAlertModal}
+        setShowModal={setShowAlertModal}
+        runFunction={onDelete}
+      />
+      <ErrorModal
+        showModal={showErrorModal}
+        setShowModal={setShowErrorModal}
+        errorMessage={errorMessage}
+      />
       <NewVolunteerModal
         newVolunteerModalShow={newVolunteerModalShow}
         setNewVolunteerModalShow={setNewVolunteerModalShow}
@@ -203,6 +241,7 @@ export default function Family() {
                 setVolunteerId={setVolunteerId}
                 setNewVolunteerModalShow={setNewVolunteerModalShow}
                 setUpdateMode={setUpdateMode}
+                setShowAlertModal={setShowAlertModal}
               />
             </div>
           </div>

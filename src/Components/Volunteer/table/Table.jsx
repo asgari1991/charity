@@ -7,6 +7,7 @@ const Table = ({
   setVolunteerId,
   setNewVolunteerModalShow,
   setUpdateMode,
+  setShowAlertModal
 }) => {
   return (
     <table className="mx-auto min-w-full p-2">
@@ -35,6 +36,7 @@ const Table = ({
               setVolunteerId={setVolunteerId}
               setNewVolunteerModalShow={setNewVolunteerModalShow}
               setUpdateMode={setUpdateMode}
+              setShowAlertModal={setShowAlertModal}
             />
           );
         })}

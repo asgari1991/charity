@@ -1,10 +1,14 @@
 import React, { useState } from "react";
 import { Formik, Form } from "formik";
 import ComboBox from "../../general/combox/ComboBox";
-const Search = ({selectedVolunteer, setSelectedVolunteer,selectedVolunteerCode,setSelectedVolunteerCode}) => {
-
-  const [volunteerList,setVolunteerList]=useState([])
-  const [volunteerCodeList,setVolunteerCodeList]=useState([])
+const Search = ({
+  selectedVolunteer,
+  setSelectedVolunteer,
+  selectedVolunteerCode,
+  setSelectedVolunteerCode,
+}) => {
+  const [volunteerList, setVolunteerList] = useState([]);
+  const [volunteerCodeList, setVolunteerCodeList] = useState([]);
   const InitialValues = {
     userName: "",
     name: "",
@@ -92,27 +96,37 @@ const Search = ({selectedVolunteer, setSelectedVolunteer,selectedVolunteerCode,s
           </div>
           <div className="flex justify-between items-center min-w-full ">
             <div className="flex gap-x-3 justify-start ">
-           
-              <div className="relative flex flex-col">
+              <input
+                value={selectedVolunteer}
+                onChange={(e) => setSelectedVolunteer(e.target.value)}
+                type="text"
+                className="w-[163px] h-8 border border-mainBlue/25 p-2 rounded-lg text-xs"
+                placeholder="نام خیر"
+              />
+              <input
+                value={selectedVolunteerCode}
+                onChange={(e) => setSelectedVolunteerCode(e.target.value)}
+                type="number"
+                className="w-[163px] h-8 border border-mainBlue/25 p-2 rounded-lg text-xs"
+                placeholder="کد خیر"
+              />
+              {/* <div className="relative flex flex-col">
                 <ComboBox
                   title="نام خیر"
                   data={volunteerList}
                   selectedValue={selectedVolunteer}
                   onChangeHandler={(val) => setSelectedVolunteer(val)}
-                  
                   itemName={(item) => item.name}
                   width="163px"
                   height="32px"
                   rounded="8px"
-            
                 />
-                
+
                 {selectedVolunteer && (
                   <svg
-                    onClick={() =>{setSelectedVolunteer(null)
-                     
-                      
-                    } }
+                    onClick={() => {
+                      setSelectedVolunteer(null);
+                    }}
                     xmlns="http://www.w3.org/2000/svg"
                     fill="none"
                     viewBox="0 0 24 24"
@@ -138,7 +152,6 @@ const Search = ({selectedVolunteer, setSelectedVolunteer,selectedVolunteerCode,s
                   width="163px"
                   height="32px"
                   rounded="8px"
-            
                 />
                 {selectedVolunteerCode && (
                   <svg
@@ -157,7 +170,7 @@ const Search = ({selectedVolunteer, setSelectedVolunteer,selectedVolunteerCode,s
                     />
                   </svg>
                 )}
-              </div>
+              </div> */}
             </div>
           </div>
         </Form>
