@@ -46,18 +46,26 @@ export default function Family() {
       .get("/api/donors", {
         params: {
           name: selectedVolunteer,
-          donor_id: selectedVolunteerCode ? Number(selectedVolunteerCode) : null,
+          donor_id: selectedVolunteerCode
+            ? Number(selectedVolunteerCode)
+            : null,
+          page: page,
+          limit: 10,
         },
       })
       .then((res) => {
         if (res.status === 200) {
           setTableBodyDatas(res.data?.list);
+          const totalHeader = Number(res.data.total);
+          setTotalPages(
+            Math.max(1, Math.ceil((isNaN(totalHeader) ? 0 : totalHeader) / 10))
+          );
         }
       })
       .catch((error) => {
         console.log("API error->", error);
       });
-  }, [refresh,selectedVolunteer,selectedVolunteerCode]);
+  }, [refresh, selectedVolunteer, selectedVolunteerCode]);
 
   function onDelete() {
     if (!volunteerId) return;
