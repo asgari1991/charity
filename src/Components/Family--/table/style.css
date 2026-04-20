@@ -1,0 +1,10 @@
+.animate{
+animation-name: example;
+  animation-duration: 500ms;
+  animation-timing-function: ease-in;
+}
+
+@keyframes example {
+    from {opacity: 0;transform: translateY(20%);}
+    to {opacity: 1;transform: translateY(0%);}
+  } 

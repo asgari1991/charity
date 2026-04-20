@@ -48,7 +48,7 @@
   }
 
   .css-2hhz9b {
-  font-family: iranSans !important;
+  font-family: Dana !important;
 }
 
 /* DAYS */
@@ -57,7 +57,7 @@
 }
 
 .css-qmbtae {
-  font-family: iranSans !important;
+  font-family: Dana !important;
   color: #1d6fa5 !important;
 }
 
@@ -67,7 +67,7 @@
 
 .css-1w8y7a2,
 .css-13rhlsg {
-  font-family: iranSans !important;
+  font-family: Dana !important;
 }
 
 /* INPUT */
@@ -76,7 +76,7 @@
   height: 35.5px !important;
   border-radius: 8px !important;
   padding-right: 1rem;
-  font-family: iranSansLight !important;
+  font-family: Dana !important;
   background-color: transparent !important;
   transition: 300ms cubic-bezier(0.4,0,0.2,1) !important;
   border: 1px solid rgba(78, 111, 136, 0.25);
@@ -99,7 +99,7 @@
 .zm-Header {
   border-bottom: 0 !important;
   transition: 300ms cubic-bezier(0.4,0,0.2,1) !important;
-  background: url(../../charity/public/img/calender-background.png) center center no-repeat;
+  background: url(/public/img/calender-background.png) center center no-repeat;
   background-size: cover;
 }
 
