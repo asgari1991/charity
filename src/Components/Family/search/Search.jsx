@@ -1,11 +1,21 @@
 import React, { useState } from "react";
 import { Formik, Form } from "formik";
 import ComboBox from "../../general/combox/ComboBox";
-const Search = ({selectedResidenceStatus, setSelectedResidenceStatus,selectedLocation,setSelectedLocation}) => {
-  const [residenceStatusList, setResidenceStatusList] = useState([
-    { id: 1, name: "مالک" },
-    { id: 2, name: "مستاجر" },]);
-  const [location,setLocation]=useState([])
+const Search = ({
+  residenceStatusList,
+  selectedResidenceStatus,
+  setSelectedResidenceStatus,
+  selectedLocation,
+  setSelectedLocation,
+  locationList,
+  searchTerm,
+  setSearchTerm,
+}) => {
+  // const [residenceStatusList, setResidenceStatusList] = useState([
+  //   { id: 1, name: "مالک" },
+  //   { id: 2, name: "مستاجر" },
+  // ]);
+  const [location, setLocation] = useState([]);
   const InitialValues = {
     userName: "",
     name: "",
@@ -94,35 +104,34 @@ const Search = ({selectedResidenceStatus, setSelectedResidenceStatus,selectedLoc
           <div className="flex justify-between items-center min-w-full ">
             <div className="flex gap-x-3 justify-start ">
               <input
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
                 type="text"
                 className="w-[163px] h-8 border border-mainBlue/25 p-2 rounded-lg text-xs"
-                placeholder="نام سرپرست"
+                placeholder="جستجو"
               />
-              <input
-                type="text"
-                className="w-[163px] h-8 border border-mainBlue/25 p-2 py-2 rounded-lg text-xs"
-                placeholder="شغل سرپرست"
-              />
+             
               <div className="relative flex flex-col">
                 <ComboBox
                   title="وضعیت مسکن"
                   data={residenceStatusList}
                   selectedValue={selectedResidenceStatus}
                   onChangeHandler={(val) => setSelectedResidenceStatus(val)}
-                  
-                  itemName={(item) => item.name}
+                  itemName={(item) => item.house_status_name}
                   width="163px"
                   height="32px"
                   rounded="8px"
-            
                 />
-                
+
                 {selectedResidenceStatus && (
                   <svg
-                    onClick={() =>{setSelectedResidenceStatus(null)
-                      console.log('selected residence', selectedResidenceStatus);
-                      
-                    } }
+                    onClick={() => {
+                      setSelectedResidenceStatus(null);
+                      console.log(
+                        "selected residence",
+                        selectedResidenceStatus,
+                      );
+                    }}
                     xmlns="http://www.w3.org/2000/svg"
                     fill="none"
                     viewBox="0 0 24 24"
@@ -141,14 +150,13 @@ const Search = ({selectedResidenceStatus, setSelectedResidenceStatus,selectedLoc
               <div className="relative flex flex-col ">
                 <ComboBox
                   title="منطقه"
-                  data={location}
+                  data={locationList}
                   selectedValue={selectedLocation}
                   onChangeHandler={(val) => setSelectedLocation(val)}
-                  itemName={(item) => item.name}
+                  itemName={(item) => item.region_name}
                   width="163px"
                   height="32px"
                   rounded="8px"
-            
                 />
                 {selectedLocation && (
                   <svg

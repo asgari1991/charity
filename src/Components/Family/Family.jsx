@@ -7,6 +7,8 @@ import axios from "../../axiosSetup";
 import NewFamilyModal from "./modals/NewFamilyModal";
 import GeneralSuccessModal from "../general/modals/GeneralSuccessModal";
 import Paging from "../general/paging/Paging";
+import ErrorModal from "../general/modals/ErrorModal";
+import AlertModal from "../general/modals/AlertModal";
 
 export default function Family() {
   //----------------------------------------------------------------
@@ -16,14 +18,21 @@ export default function Family() {
   //----------------------------------------------------------------
   const [updateMode, setUpdateMode] = useState(false);
   const [selectedResidenceStatus, setSelectedResidenceStatus] = useState(null);
+  const [residenceStatusList, setResidenceStatusList] = useState([]);
   const [selectedLocation, setSelectedLocation] = useState(null);
+  const [locationList, setLocationList] = useState([]);
   const [selectedFamilyHead, setSelectedFamilyHead] = useState(null);
   const [selectedJob, setSelectedJob] = useState(null);
+  const [searchTerm, setSearchTerm] = useState("");
   //----------------------------------------------------------------
   const [totalPages, setTotalPages] = useState(null);
   const [page, setPage] = useState(1);
   //----------------------------------------------------------------
   const [familyId, setFamilyId] = useState(null);
+  //----------------------------------------------------------------
+  const [showAlertModal, setShowAlertModal] = useState(false);
+  const [showErrorModal, setShowErrorModal] = useState(false);
+  const [errorMessage, setErrorMessage] = useState();
   //----------------------------------------------------------------
   const [tableBodyDatas, setTableBodyDatas] = useState([]);
   const [tableHeaderDatas, setTableHeaderDatas] = useState([
@@ -35,14 +44,16 @@ export default function Family() {
     "وضعیت مسکن",
     "منطقه",
     "مشاهده پروفایل ",
+    "حذف",
   ]);
   useEffect(() => {
     axios
       .get("/api/families", {
         params: {
-          family_head_id: selectedFamilyHead,
+          search: searchTerm,
           job: selectedJob,
-          house_status_id: selectedResidenceStatus,
+          house_status_id: selectedResidenceStatus?.house_status_id,
+          region_id: selectedLocation?.region_id,
           page: page,
           limit: 10,
         },
@@ -59,10 +70,69 @@ export default function Family() {
       .catch((error) => {
         console.log("API error->", error);
       });
-  }, [refresh]);
+  }, [refresh, searchTerm, selectedResidenceStatus, selectedLocation]);
+
+  useEffect(() => {
+    axios
+      .get("/api/houseStatus", {
+        params: {},
+      })
+      .then((res) => {
+        setResidenceStatusList(res.data);
+      })
+      .catch((error) => {
+        console.log("API error->", error);
+      });
+  }, []);
+
+  useEffect(() => {
+    axios
+      .get("/api/regions", {
+        params: {},
+      })
+      .then((res) => {
+        setLocationList(res.data);
+      })
+      .catch((error) => {
+        console.log("API error->", error);
+      });
+  }, []);
+
+  function onDelete() {
+    if (!familyId) return;
+
+    axios
+      .delete(`api/families/${familyId}`, {
+        // params: {
+        //   donor_id: volunteerId,
+        // },
+      })
+      .then((res) => {
+        setShowAlertModal(false);
+        setRefresh((prev) => !prev);
+      })
+      .catch((error) => {
+        console.log(error);
+        setShowAlertModal(false);
+        setErrorMessage(error?.response?.data?.error || "خطا در حذف");
+        setShowErrorModal(true);
+      })
+      .finally(() => setFamilyId(null));
+  }
 
   return (
     <>
+      <AlertModal
+        showModal={showAlertModal}
+        setShowModal={setShowAlertModal}
+        runFunction={onDelete}
+      />
+      <ErrorModal
+        showModal={showErrorModal}
+        setShowModal={setShowErrorModal}
+        errorMessage={errorMessage}
+      />
+
       <NewFamilyModal
         newFamilyModalShow={newFamilyModalShow}
         setNewFamilyModalShow={setNewFamilyModalShow}
@@ -98,8 +168,12 @@ export default function Family() {
           <Search
             selectedResidenceStatus={selectedResidenceStatus}
             setSelectedResidenceStatus={setSelectedResidenceStatus}
+            residenceStatusList={residenceStatusList}
             selectedLocation={selectedLocation}
+            locationList={locationList}
             setSelectedLocation={setSelectedLocation}
+            searchTerm={searchTerm}
+            setSearchTerm={setSearchTerm}
           />
         </div>
         <div className="w-full mt-2">
@@ -254,6 +328,7 @@ export default function Family() {
                 tableBodyDatas={tableBodyDatas}
                 setFamilyId={setFamilyId}
                 setNewFamilyModalShow={setNewFamilyModalShow}
+                setShowAlertModal={setShowAlertModal}
               />
             </div>
           </div>

@@ -11,6 +11,11 @@ import {
   convertEnglishToPersianDateChatGpt,
   convertPersianToEnglishDate,
 } from "../../general/util";
+import ErrorModal from "../../general/modals/ErrorModal";
+import ListBox from "../../general/listbox/ListBox";
+import CustomInput from "../../general/input/CustomInput";
+// import "../../../styles.css"
+
 const NewFamilyModal = ({
   newFamilyModalShow,
   setNewFamilyModalShow,
@@ -37,6 +42,7 @@ const NewFamilyModal = ({
   const [headNationalCode, setHeadNationalCode] = useState("");
   const [headFatherName, setHeadFatherName] = useState("");
   const [headPhone, setHeadPhone] = useState("");
+  const [isSeyyed, setIsSeyyed] = useState();
   const [headWifesName, setHeadWifesName] = useState("");
   const [headBankAccount, setHeadBankAccount] = useState("");
   const [headJob, setHeadJob] = useState("");
@@ -47,6 +53,9 @@ const NewFamilyModal = ({
   const [familyPhone, setFamilyPhone] = useState("");
   const [employmentFields, setEmploymentFields] = useState("");
 
+  //-------------------------------------------------------
+  const [lonelyReasonList, setLonelyReasonList] = useState([]);
+  const [lonelyReason, setLonelyReason] = useState();
   //-------------------------------------------------------
   const [physicalStatusList, setPhysicalStatusList] = useState([]);
   const [physicalStatus, setPhysicalStatus] = useState("");
@@ -64,6 +73,7 @@ const NewFamilyModal = ({
   //-------------------------------------------------------
   const [memberId, setMemberId] = useState("");
   const [memberName, setMemberName] = useState("");
+  const [memberFamily, setMemberFamily] = useState("");
   const [memberFatherName, setMemberFatherName] = useState("");
   const [memberNationalCode, setMemberNationalCode] = useState("");
   const [memberRelation, setMemberRelation] = useState("");
@@ -95,6 +105,16 @@ const NewFamilyModal = ({
   const [isSubmitMember, setIsSubmitMember] = useState(false);
   const [validationErrors, setValidationErrors] = useState({});
   //-------------------------------------------------------
+  const [showAlertModal, setShowAlertModal] = useState(false);
+  const [showErrorModal, setShowErrorModal] = useState(false);
+  const [errorMessage, setErrorMessage] = useState();
+  //-------------------------------------------------------
+  const [memberErrors, setMemberErrors] = useState();
+  //-------------------------------------------------------
+  const [newMemberShow, setNewMemberShow] = useState(false);
+  //-------------------------------------------------------
+
+  console.log("memberCaretakerStatus", memberCaretakerStatus);
 
   console.log("familyMembers", familyMembers);
   console.log("tableBodyDatas", tableBodyDatas);
@@ -157,19 +177,29 @@ const NewFamilyModal = ({
             setBirthDateKey((prevKey) => prevKey + 1);
           }
           // -------------------------------------------------------------
+          setIsSeyyed({
+            value: data?.is_seyyed,
+            name: data?.is_seyyed ? "سید" : "غیر سید",
+          });
+          // -------------------------------------------------------------
+          setLonelyReason({
+            lonely_reason_id: data?.lonely_reason_id,
+            lonely_reason_name: data?.lonely_reason_name,
+          });
           // -------------------------------------------------------------
           // Normalize the table data to have consistent property names
-          const normalizedTableData = tableData.map(member => ({
+          const normalizedTableData = tableData.map((member) => ({
             // Use consistent property names (camelCase with member prefix)
-            memberName: `${member.first_name || ''} ${member.last_name || ''}`.trim(),
-            memberFatherName: member.father_name || '',
-            memberNationalCode: member.national_code || '',
-            memberRelation: member.relation || '', // Add if you have this in API
-            memberCaretakerStatus: member.caretaker_status_name || '',
-            memberEducationStatus: member.education_status_name || '',
-            memberGender: member.gender === 1 ? 'مرد' : 'زن',
-            memberBirthdate: member.birth_date || '',
-            memberPhysicalStatus: member.physical_status_name || '',
+            memberName: member.first_name || "",
+            memberFamily: member.last_name || "",
+            memberFatherName: member.father_name || "",
+            memberNationalCode: member.national_code || "",
+            memberRelation: member.relation || "", // Add if you have this in API
+            memberCaretakerStatus: member.caretaker_status_name || "",
+            memberEducationStatus: member.education_status_name || "",
+            memberGender: member.gender === 1 ? "مرد" : "زن",
+            memberBirthdate: member.birth_date || "",
+            memberPhysicalStatus: member.physical_status_name || "",
             // Store IDs for API submission
             memberCaretakerStatusId: member.caretaker_status_id || null,
             memberEducationStatusId: member.education_status_id || null,
@@ -220,11 +250,10 @@ const NewFamilyModal = ({
     //   education_status_id: member.memberEducationStatus?.education_status_id,
     // }));
 
-
     // Format ALL members from tableBodyDatas (now all have consistent property names)
     const formattedFamilyMembers = tableBodyDatas.map((member) => ({
-      first_name: member.memberName?.split(" ")[0] || "",
-      last_name: member.memberName?.split(" ").slice(1).join(" ") || "",
+      first_name: member.memberName || "",
+      last_name: member.memberFamily || "",
       father_name: member.memberFatherName || "",
       gender: member.memberGender === "مرد" ? 1 : 2,
       national_code: member.memberNationalCode || "",
@@ -233,9 +262,11 @@ const NewFamilyModal = ({
       caretaker_status_id: member.memberCaretakerStatusId,
       education_status_id: member.memberEducationStatusId,
       // Include family_member_id if it exists (for updates)
-      ...(member.family_member_id && { family_member_id: member.family_member_id }),
+      ...(member.family_member_id && {
+        family_member_id: member.family_member_id,
+      }),
     }));
-    
+
     const requestBody = {
       family_id: familyId || null,
       family: {
@@ -263,8 +294,10 @@ const NewFamilyModal = ({
         gender: gender?.id === 0 ? 0 : 1, // مرد=0, زن=1
         physical_status_id: physicalStatus?.physical_status_id,
         lonely_reason: headLonelyReason || "",
+        lonely_reason_id: lonelyReason?.lonely_reason_id,
+        is_seyyed: isSeyyed?.value || false,
       },
-      family_members: formattedFamilyMembers
+      family_members: formattedFamilyMembers,
     };
 
     if (familyId) {
@@ -281,6 +314,8 @@ const NewFamilyModal = ({
         })
         .catch((error) => {
           console.error("Error submitting family:", error);
+          setErrorMessage(error?.response?.data?.error || "خطا");
+          setShowErrorModal(true);
           setIsSubmit(false);
         });
     } else {
@@ -297,6 +332,8 @@ const NewFamilyModal = ({
         })
         .catch((error) => {
           console.error("Error submitting family:", error);
+          setErrorMessage(error?.response?.data?.error || "خطا");
+          setShowErrorModal(true);
           setIsSubmit(false);
         });
     }
@@ -372,20 +409,49 @@ const NewFamilyModal = ({
   //   });
   // };
 
+  const validateMember = (member) => {
+    const errors = {};
+
+    if (!member.memberName?.trim())
+      errors.memberName = "نام عضو نمی‌تواند خالی باشد";
+
+    if (!member.memberFamily?.trim())
+      errors.memberFamily = "نام خانوادگی عضو نمی‌تواند خالی باشد";
+
+    if (!member.memberFatherName?.trim())
+      errors.memberFatherName = "نام پدر نمی‌تواند خالی باشد";
+
+    if (!member.memberNationalCode?.trim())
+      errors.memberNationalCode = "کد ملی الزامی است";
+    else if (!/^\d{10}$/.test(member.memberNationalCode))
+      errors.memberNationalCode = "کد ملی باید ۱۰ رقم باشد";
+
+    // if (!member.memberRelation?.trim())
+    //   errors.memberRelation = "نسبت با سرپرست الزامی است";
+
+    if (!member.memberGenderId) errors.memberGender = "انتخاب جنسیت الزامی است";
+
+    if (!member.memberBirthdate?.trim())
+      errors.memberBirthdate = "تاریخ تولد الزامی است";
+
+    return errors;
+  };
+
   const addNewMember = () => {
     setIsSubmitMember(true);
 
-    if (!memberNationalCode) {
-      setIsSubmitMember(false);
-      return;
-    }
+    // if (!memberNationalCode) {
+    //   setIsSubmitMember(false);
+    //   return;
+    // }
 
     // Check for duplicates in tableBodyDatas
     const exists = memberNationalCode
       ? tableBodyDatas.some(
-        (m) => m.national_code === memberNationalCode ||
-          m.memberNationalCode === memberNationalCode
-      )
+          (m) =>
+            m.national_code === memberNationalCode ||
+            m.memberNationalCode === memberNationalCode,
+        )
       : false;
 
     if (exists) {
@@ -395,6 +461,7 @@ const NewFamilyModal = ({
 
     const newMember = {
       memberName: memberName || "",
+      memberFamily: memberFamily || "",
       memberFatherName: memberFatherName || "",
       memberNationalCode: memberNationalCode || "",
       memberRelation: memberRelation || "",
@@ -403,17 +470,29 @@ const NewFamilyModal = ({
       memberGender: memberGender?.name || memberGender || "",
       memberBirthdate: memberBirthdate || "",
       memberPhysicalStatus: memberPhysicalStatus?.physical_status_name || "",
-      memberCaretakerStatusId: memberCaretakerStatus?.id || null,
-      memberEducationStatusId: memberEducationStatus?.id || null,
+      memberCaretakerStatusId:
+        memberCaretakerStatus?.caretaker_status_id || null,
+      memberEducationStatusId:
+        memberEducationStatus?.education_status_id || null,
       memberGenderId: memberGender?.id || null,
       memberPhysicalStatusId: memberPhysicalStatus?.id || null,
     };
+
+    // 1) Run validation
+    const errors = validateMember(newMember);
+
+    if (Object.keys(errors).length > 0) {
+      setMemberErrors(errors); // نمایش خطاها در UI
+      setIsSubmitMember(false);
+      return;
+    }
 
     // Update tableBodyDatas with the new member
     setTableBodyDatas((prev) => [...prev, newMember]);
 
     // Reset form fields
     setMemberName("");
+    setMemberFamily("");
     setMemberFatherName("");
     setMemberNationalCode("");
     setMemberRelation("");
@@ -435,10 +514,10 @@ const NewFamilyModal = ({
     setNewFamilyModalShow(false);
     setTimeout(() => {
       setUpdateMode(false);
+      setFamilyId(null);
+      setValidationErrors({});
     }, 200);
     setIsSubmit(false);
-    setValidationErrors({});
-    setFamilyId(null);
     // Reset form
     setHeadFirstName("");
     setHeadLastName("");
@@ -461,6 +540,23 @@ const NewFamilyModal = ({
     setSelectedSupportingOrg("");
     setFamilyMembers([]);
     setTableBodyDatas([]);
+    // --------------------------------------------
+    setMemberErrors();
+    setMemberName();
+    setMemberFamily();
+    setMemberFatherName();
+    setMemberGender();
+    setMemberRelation();
+    setMemberNationalCode();
+    setMemberPhysicalStatus();
+    setMemberBirthdate("");
+    setMemberBirthdateKey(false);
+    setMemberCaretakerStatus();
+    setMemberEducationStatus();
+    // --------------------------------------------
+    setIsSeyyed();
+    setNewMemberShow(false);
+    setLonelyReason();
   };
   useEffect(() => {
     if (!updateMode) {
@@ -474,6 +570,20 @@ const NewFamilyModal = ({
         });
     }
   }, [newFamilyModalShow]);
+
+  useEffect(() => {
+    if (!updateMode) {
+      axios
+        .get(`/api/lonely_reason`)
+        .then((res) => {
+          setLonelyReasonList(res.data);
+        })
+        .catch((error) => {
+          console.log(error);
+        });
+    }
+  }, [newFamilyModalShow]);
+
   useEffect(() => {
     if (!updateMode) {
       axios
@@ -575,7 +685,7 @@ const NewFamilyModal = ({
                 <Dialog.Panel
                   className={`flex relative flex-col items-center justify-center`}
                 >
-                  <div className="w-[850px] rounded-t-[16px] flex items-center justify-between h-[54px] bg-gradient-to-l to-[#6F8FA8] from-mainBlue">
+                  <div className="w-[970px] rounded-t-[16px] flex items-center justify-between h-[54px] bg-gradient-to-l to-[#6F8FA8] from-mainBlue">
                     <svg
                       xmlns="http://www.w3.org/2000/svg"
                       fill="none"
@@ -592,65 +702,80 @@ const NewFamilyModal = ({
                       />
                     </svg>
                     <span className="text-white ml-auto mr-3 font-iranSans text-[14px]">
-                      {updateMode ? "ویرایش خانواده" : "ثبت خانواده جدید "}
+                      {familyId ? "ویرایش خانواده" : "ثبت خانواده جدید "}
                     </span>
                   </div>
-                  <div className="flex flex-col rounded-b-[16px] w-[850px] bg-white items-start justify-center px-4  pb-4">
+                  <div className="flex flex-col rounded-b-[16px] w-[970px] bg-white items-start justify-center px-4  pb-4">
+                    <ErrorModal
+                      showModal={showErrorModal}
+                      setShowModal={setShowErrorModal}
+                      errorMessage={errorMessage}
+                    />
                     <form
-                      className="flex my-6 items-start justify-between flex-col xl:max-w-full mx-auto w-full z-50"
+                      className="flex relative my-6 items-start justify-between flex-col xl:max-w-full mx-auto w-full z-50"
                       onSubmit={onSubmitHandler}
                       id="submitModal"
                     >
-                      <div className="relative z-[10000] mb-[20px] border-[1px] border-tableBorder flex rounded-lg flex-wrap py-4 gap-3 px-5 w-full">
+                      <div className="relative z-[10000] mb-[20px] border-[1px] border-tableBorder flex items-start rounded-lg flex-wrap py-4 gap-3 px-5 w-full">
                         <span
                           className={`${`text-[10px] right-[6px] left-18 -top-2 px-[4px]`} absolute group-focus-within:px-[4px] 
       min-w-max cursor-text  ease-in-out duration-500  font-iranSans text-mainBlue text-left transition-all bg-white`}
                         >
                           مشخصات سرپرست
                         </span>
-                        <input
-                          type="text"
-                          placeholder="نام "
-                          value={headFirstName}
-                          onChange={(e) => setHeadFirstName(e.target.value)}
-                          className="border border-mainBlue/25 px-2.5 py-2 rounded-lg text-sxs font-DanaMedium"
-                        />{" "}
-                        {validationErrors.headFirstName && (
-                          <span className="text-red-600 text-[9px] font-iranSansBold">
-                            {validationErrors.headFirstName}
-                          </span>
-                        )}{" "}
-                        <input
-                          type="text"
-                          placeholder="نام خانوادگی "
-                          value={headLastName}
-                          onChange={(e) => setHeadLastName(e.target.value)}
-                          className="border border-mainBlue/25 px-2.5 py-2 rounded-lg text-sxs font-DanaMedium"
-                        />{" "}
-                        {validationErrors.headLastName && (
-                          <span className="text-red-600 text-[9px] font-iranSansBold">
-                            {validationErrors.headLastName}
-                          </span>
-                        )}{" "}
-                        <input
-                          type="text"
-                          placeholder="نام پدر "
+
+                        <div className="flex flex-col">
+                          {/* <input
+                            type="text"
+                            placeholder="نام "
+                            value={headFirstName}
+                            onChange={(e) => setHeadFirstName(e.target.value)}
+                            className="border border-[#4E6F88] px-2.5 py-2 rounded-lg text-[12px] text-black font-DanaMedium"
+                          /> */}
+                          <CustomInput
+                            value={headFirstName}
+                            onChange={(e) => setHeadFirstName(e.target.value)}
+                            title="نام"
+                          />
+                          {validationErrors.headFirstName && (
+                            <span className="text-red-600 text-[10px] mt-1 font-DanaDemiBold">
+                              {validationErrors.headFirstName}
+                            </span>
+                          )}
+                        </div>
+                        <div className="flex flex-col">
+                          <CustomInput
+                            value={headLastName}
+                            onChange={(e) => setHeadLastName(e.target.value)}
+                            title="نام خانوادگی"
+                          />
+
+                          {validationErrors.headLastName && (
+                            <span className="text-red-600 text-[10px] mt-1 font-DanaDemiBold">
+                              {validationErrors.headLastName}
+                            </span>
+                          )}
+                        </div>
+                        <CustomInput
                           value={headFatherName}
                           onChange={(e) => setHeadFatherName(e.target.value)}
-                          className="border border-mainBlue/25 px-2.5 py-2 rounded-lg text-sxs font-DanaMedium"
+                          title="نام پدر "
                         />
-                        <input
-                          type="text"
-                          placeholder="کد ملی "
-                          value={headNationalCode}
-                          onChange={(e) => setHeadNationalCode(e.target.value)}
-                          className=" border border-mainBlue/25 px-2.5 py-2 rounded-lg text-sxs font-DanaMedium"
-                        />{" "}
-                        {validationErrors.headNationalCode && (
-                          <span className="text-red-600 text-[9px] font-iranSansBold">
-                            {validationErrors.headNationalCode}
-                          </span>
-                        )}{" "}
+                        <div className="flex flex-col">
+                          <CustomInput
+                            value={headNationalCode}
+                            onChange={(e) =>
+                              setHeadNationalCode(e.target.value)
+                            }
+                            title="کد ملی "
+                          />
+
+                          {validationErrors.headNationalCode && (
+                            <span className="text-red-600 text-[10px] mt-1 font-DanaDemiBold">
+                              {validationErrors.headNationalCode}
+                            </span>
+                          )}
+                        </div>
                         <div className="relative">
                           <CustomDateInput
                             title="تاریخ تولد"
@@ -660,20 +785,35 @@ const NewFamilyModal = ({
                             setKey={setBirthDateKey}
                           />
                           {(!selectedBirthDate && isSubmit) ||
-                            validationErrors.selectedBirthDate ? (
-                            <span className="font-iranSansBold -mb-1 mt-1 text-red-600 ease-in-out duration-300 text-[9px]">
+                          validationErrors.selectedBirthDate ? (
+                            <span className="font-DanaDemiBold   -mt-[4px] text-red-600 ease-in-out duration-300 text-[10px]">
                               {validationErrors.selectedBirthDate ||
                                 "وارد کردن تاریخ تولد الزامی است"}
                             </span>
                           ) : null}
                         </div>
-                        <input
-                          type="text"
-                          placeholder="شماره همراه "
+
+                        <CustomInput
                           value={headPhone}
                           onChange={(e) => setHeadPhone(e.target.value)}
-                          className="border border-mainBlue/25 px-2.5 py-2 rounded-lg text-sxs font-DanaMedium"
+                          title="شماره همراه "
                         />
+                        <div className="">
+                          <ListBox
+                            textSize="12px"
+                            data={[
+                              { value: true, name: "سید" },
+                              { value: false, name: "غیر سید" },
+                            ]}
+                            onSelectHandler={(value) => setIsSeyyed(value)}
+                            itemName={(item) => item?.name}
+                            placeHolder="نسب"
+                            value={isSeyyed?.name}
+                            color="#7F909C"
+                            width="160px"
+                            rounded="8px"
+                          />
+                        </div>
                         <div className="relative flex items-center z-[1000000]">
                           <ComboBox
                             title="وضعیت جسمانی"
@@ -684,7 +824,7 @@ const NewFamilyModal = ({
                             }
                             itemName={(item) => item.physical_status_name}
                             color="#420E5A"
-                            ringColor="#4E6F88"
+                            ringColor="rgb(78 111 136 / 0.25)"
                             rounded="8px"
                           />
                           {physicalStatus && (
@@ -715,7 +855,7 @@ const NewFamilyModal = ({
                             onChangeHandler={(val) => setGender(val)}
                             itemName={(item) => item.name}
                             color="#420E5A"
-                            ringColor="#4E6F88"
+                            ringColor="rgb(78 111 136 / 0.25)"
                             rounded="8px"
                           />
                           {gender && (
@@ -738,33 +878,40 @@ const NewFamilyModal = ({
                             </svg>
                           )}
                         </div>
-                        <input
-                          type="text"
-                          placeholder="نام همسر "
+                        <CustomInput
                           value={headWifesName}
                           onChange={(e) => setHeadWifesName(e.target.value)}
-                          className="border border-mainBlue/25 px-2.5 py-2 rounded-lg text-sxs font-DanaMedium"
+                          title="نام همسر "
                         />
-                        <input
-                          type="text"
-                          placeholder="علت تنهایی "
+                        <div className="">
+                          <ListBox
+                            textSize="12px"
+                            data={lonelyReasonList}
+                            onSelectHandler={(value) => setLonelyReason(value)}
+                            itemName={(item) => item?.lonely_reason_name}
+                            placeHolder="علت تنهایی"
+                            value={lonelyReason?.lonely_reason_name}
+                            color="#7F909C"
+                            width="160px"
+                            rounded="8px"
+                          />
+                        </div>
+                        <CustomInput
                           value={headLonelyReason}
                           onChange={(e) => setHeadLonelyReason(e.target.value)}
-                          className="border border-mainBlue/25 px-2.5 py-2 rounded-lg text-sxs font-DanaMedium"
+                          title="علت تنهایی"
                         />
-                        <input
-                          type="text"
-                          placeholder="شماره حساب سرپرست "
+
+                        <CustomInput
                           value={headBankAccount}
                           onChange={(e) => setHeadBankAccount(e.target.value)}
-                          className="border border-mainBlue/25 px-2.5 py-2 rounded-lg text-sxs font-DanaMedium"
+                          title="شماره حساب سرپرست "
                         />
-                        <input
-                          type="text"
-                          placeholder="شغل "
+
+                        <CustomInput
                           value={headJob}
                           onChange={(e) => setHeadJob(e.target.value)}
-                          className="border border-mainBlue/25 px-2.5 py-2 rounded-lg text-sxs font-DanaMedium"
+                          title="شغل"
                         />
                       </div>
                       <div className="relative z-[40] mb-[20px] border-[1px] border-tableBorder flex rounded-lg flex-wrap py-4 gap-3 px-5 w-full">
@@ -785,7 +932,7 @@ const NewFamilyModal = ({
                             }
                             itemName={(item) => item.insurance_type_name}
                             color="#420E5A"
-                            ringColor="#4E6F88"
+                            ringColor="rgb(78 111 136 / 0.25)"
                             rounded="8px"
                           />
                           {selectedInsuranceType && (
@@ -818,7 +965,7 @@ const NewFamilyModal = ({
                             }
                             itemName={(item) => item.house_status_name}
                             color="#420E5A"
-                            ringColor="#4E6F88"
+                            ringColor="rgb(78 111 136 / 0.25)"
                             rounded="8px"
                           />
                           {selectedHousingStatus && (
@@ -841,20 +988,18 @@ const NewFamilyModal = ({
                             </svg>
                           )}
                         </div>
-                        <input
-                          type="text"
-                          placeholder="آدرس "
+                        <CustomInput
                           value={familyAddress}
                           onChange={(e) => setFamilyAddress(e.target.value)}
-                          className="border border-mainBlue/25 px-2.5 py-2 rounded-lg text-sxs font-DanaMedium"
+                          title="آدرس"
                         />
-                        <input
-                          type="text"
-                          placeholder="تلفن "
+
+                        <CustomInput
                           value={familyPhone}
                           onChange={(e) => setFamilyPhone(e.target.value)}
-                          className="border border-mainBlue/25 px-2.5 py-2 rounded-lg text-sxs font-DanaMedium"
+                          title="تلفن "
                         />
+
                         <div className="relative flex items-center">
                           <ComboBox
                             title="منطقه"
@@ -865,7 +1010,7 @@ const NewFamilyModal = ({
                             }
                             itemName={(item) => item.region_name}
                             color="#420E5A"
-                            ringColor="#4E6F88"
+                            ringColor="rgb(78 111 136 / 0.25)"
                             rounded="8px"
                           />
                           {selectedRegion && (
@@ -898,7 +1043,7 @@ const NewFamilyModal = ({
                             }
                             itemName={(item) => item.support_orgs_name}
                             color="#420E5A"
-                            ringColor="#4E6F88"
+                            ringColor="rgb(78 111 136 / 0.25)"
                             rounded="8px"
                           />
                           {selectedSupportingOrg && (
@@ -921,84 +1066,136 @@ const NewFamilyModal = ({
                             </svg>
                           )}
                         </div>
-                        <input
-                          type="text"
-                          placeholder="زمینه های اشتغال "
+
+                        <CustomInput
                           value={employmentFields}
                           onChange={(e) => setEmploymentFields(e.target.value)}
-                          className="border border-mainBlue/25 px-2.5 py-2 rounded-lg text-sxs font-DanaMedium"
+                          title="زمینه های اشتغال "
                         />
                       </div>
+                      {!newMemberShow && (
+                        <Button
+                          onClick={(e) => {
+                            e.preventDefault();
+                            setNewMemberShow(true);
+                          }}
+                          title="عضو جدید"
+                          bg
+                          isContractors
+                          type="button"
+                          color="bg-mainBlue"
+                        />
+                      )}
+                      {/* {newMemberShow && ( */}
+                      <div
+                        // className={`${newMemberShow ? 'fade-in visible opacity-100' : 'opacity-0 translate-x-[600px] fade-in'} transition-all duration-300 relative mb-[20px] border-[1px] border-tableBorder flex items-start rounded-lg flex-wrap py-4 gap-3 px-5 w-full`}
 
-                      <div className="relative mb-[20px] border-[1px] border-tableBorder flex rounded-lg flex-wrap py-4 gap-3 px-5 w-full">
+                        className={`
+                          relative mb-[20px] border-[1px] border-tableBorder flex items-start rounded-lg flex-wrap py-4 gap-3 px-5 w-full
+                          ${newMemberShow ? "opacity-100 max-h-[500px]" : "opacity-0 max-h-0"}
+                          overflow-hidden- transition-all duration-500 ease-in-out
+                        `}
+                      >
                         <span
-                          className={`${`text-[10px] right-[6px] left-18 -top-2 px-[4px]`} absolute group-focus-within:px-[4px] 
-      min-w-max cursor-text  ease-in-out duration-500  font-iranSans text-mainBlue text-left transition-all bg-white`}
+                          className={`${`z-[10000] text-[10px] right-[6px] left-18 -top-2 px-[4px]`} absolute group-focus-within:px-[4px] 
+min-w-max cursor-text  ease-in-out duration-500  font-iranSans text-mainBlue text-left transition-all bg-white`}
                         >
                           عضو جدید
                         </span>
-
-                        <input
-                          type="text"
-                          placeholder="نام و نام خانوادگی "
-                          value={memberName}
-                          onChange={(e) => setMemberName(e.target.value)}
-                          className="border border-mainBlue/25 px-2.5 py-2 rounded-lg text-sxs font-DanaMedium"
-                        />
-                        <input
-                          type="text"
-                          placeholder="نام پدر "
-                          value={memberFatherName}
-                          onChange={(e) => setMemberFatherName(e.target.value)}
-                          className="border border-mainBlue/25 px-2.5 py-2 rounded-lg text-sxs font-DanaMedium"
-                        />
-                        <div className="relative flex items-center">
-                          <ComboBox
-                            title="جنسیت "
-                            data={genderList}
-                            selectedValue={memberGender}
-                            onChangeHandler={(val) => setMemberGender(val)}
-                            itemName={(item) => item.name}
-                            color="#420E5A"
-                            ringColor="#4E6F88"
-                            rounded="8px"
+                        <div className="flex flex-col">
+                          <CustomInput
+                            value={memberName}
+                            onChange={(e) => setMemberName(e.target.value)}
+                            title="نام"
                           />
-                          {memberGender && (
-                            <svg
-                              onClick={() => {
-                                setMemberGender("");
-                              }}
-                              xmlns="http://www.w3.org/2000/svg"
-                              fill="none"
-                              viewBox="0 0 24 24"
-                              stroke-width="1.5"
-                              stroke="currentColor"
-                              class="size-5 text-mainBlue cursor-pointer  left-2 top-[7px] absolute"
-                            >
-                              <path
-                                stroke-linecap="round"
-                                stroke-linejoin="round"
-                                d="M6 18 18 6M6 6l12 12"
-                              />
-                            </svg>
+
+                          {memberErrors?.memberName && (
+                            <span className="text-red-600 font-DanaDemiBold mt-1 text-[10px]">
+                              {memberErrors.memberName}
+                            </span>
                           )}
                         </div>
-                        <input
-                          type="text"
-                          placeholder="نسب "
+                        <div className="flex flex-col">
+                          <CustomInput
+                            value={memberFamily}
+                            onChange={(e) => setMemberFamily(e.target.value)}
+                            title="نام خانوادگی"
+                          />
+
+                          {memberErrors?.memberFamily && (
+                            <span className="text-red-600 font-DanaDemiBold mt-1 text-[10px]">
+                              {memberErrors.memberFamily}
+                            </span>
+                          )}
+                        </div>
+                        <div className="flex flex-col">
+                          <CustomInput
+                            value={memberFatherName}
+                            onChange={(e) =>
+                              setMemberFatherName(e.target.value)
+                            }
+                            title="نام پدر"
+                          />
+
+                          {memberErrors?.memberFatherName && (
+                            <span className="text-red-600 font-DanaDemiBold mt-1 text-[10px]">
+                              {memberErrors.memberFatherName}
+                            </span>
+                          )}
+                        </div>
+                        <div className="flex flex-col ">
+                          <div className="relative flex items-center">
+                            <ComboBox
+                              title="جنسیت "
+                              data={genderList}
+                              selectedValue={memberGender}
+                              onChangeHandler={(val) => setMemberGender(val)}
+                              itemName={(item) => item.name}
+                              color="#420E5A"
+                              ringColor="rgb(78 111 136 / 0.25)"
+                              rounded="8px"
+                            />
+                            {memberGender && (
+                              <svg
+                                onClick={() => {
+                                  setMemberGender("");
+                                }}
+                                xmlns="http://www.w3.org/2000/svg"
+                                fill="none"
+                                viewBox="0 0 24 24"
+                                stroke-width="1.5"
+                                stroke="currentColor"
+                                class="size-5 text-mainBlue cursor-pointer  left-2 top-[7px] absolute"
+                              >
+                                <path
+                                  stroke-linecap="round"
+                                  stroke-linejoin="round"
+                                  d="M6 18 18 6M6 6l12 12"
+                                />
+                              </svg>
+                            )}
+                          </div>
+                          {memberErrors?.memberGender && (
+                            <span className="text-red-600 font-DanaDemiBold mt-1 text-[10px]">
+                              {memberErrors.memberGender}
+                            </span>
+                          )}
+                        </div>
+
+                        <CustomInput
                           value={memberRelation}
                           onChange={(e) => setMemberRelation(e.target.value)}
-                          className="border border-mainBlue/25 px-2.5 py-2 rounded-lg text-sxs font-DanaMedium"
+                          title="نسب"
                         />
-                        <input
-                          type="text"
-                          placeholder="کدملی  "
+
+                        <CustomInput
                           value={memberNationalCode}
                           onChange={(e) =>
                             setMemberNationalCode(e.target.value)
                           }
-                          className="border border-mainBlue/25 px-2.5 py-2 rounded-lg text-sxs font-DanaMedium"
+                          title="کدملی"
                         />
+
                         <div className="relative flex items-center">
                           <ComboBox
                             title="وضعیت جسمانی"
@@ -1009,7 +1206,7 @@ const NewFamilyModal = ({
                             }
                             itemName={(item) => item.physical_status_name}
                             color="#420E5A"
-                            ringColor="#4E6F88"
+                            ringColor="rgb(78 111 136 / 0.25)"
                             rounded="8px"
                           />
                           {memberPhysicalStatus && (
@@ -1041,7 +1238,7 @@ const NewFamilyModal = ({
                             setKey={setMemberBirthdateKey}
                           />
                           {!memberBirthdate && isSubmit && (
-                            <span className="font-iranSansBold -mb-1 mt-1 text-red-600 ease-in-out duration-300 text-[9px]">
+                            <span className="font-DanaDemiBold -mb-1 mt-1 text-red-600 ease-in-out duration-300 text-[10px]">
                               وارد کردن تاریخ تولد الزامی است
                             </span>
                           )}
@@ -1056,7 +1253,7 @@ const NewFamilyModal = ({
                             }
                             itemName={(item) => item.caretaker_status_name}
                             color="#420E5A"
-                            ringColor="#4E6F88"
+                            ringColor="rgb(78 111 136 / 0.25)"
                             rounded="8px"
                           />
                           {memberCaretakerStatus && (
@@ -1089,7 +1286,7 @@ const NewFamilyModal = ({
                             }
                             itemName={(item) => item.education_status_name}
                             color="#420E5A"
-                            ringColor="#4E6F88"
+                            ringColor="rgb(78 111 136 / 0.25)"
                             rounded="8px"
                           />
                           {memberEducationStatus && (
@@ -1124,6 +1321,7 @@ const NewFamilyModal = ({
                           color="bg-mainBlue"
                         />
                       </div>
+                      {/* )} */}
 
                       <div className="relative border-[1px] border-b-mainBlue flex rounded-[8px] flex-wrap py-7 gap-4 w-full">
                         <span

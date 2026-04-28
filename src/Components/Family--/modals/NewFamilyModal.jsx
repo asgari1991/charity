@@ -7,6 +7,10 @@ import Table from "./table/Table";
 import CustomDateInput from "../../general/date-picker/CustomDateInput";
 import axios from "../../../axiosSetup";
 import ComboBox from "../../general/combox/ComboBox";
+import {
+  convertEnglishToPersianDateChatGpt,
+  convertPersianToEnglishDate,
+} from "../../general/util";
 const NewFamilyModal = ({
   newFamilyModalShow,
   setNewFamilyModalShow,
@@ -20,6 +24,7 @@ const NewFamilyModal = ({
 }) => {
   // ---------------------------------------------------------------------
   const [selectedBirthDate, setSelectedBirthDate] = useState("");
+  const [originalBirthDate, setOriginalBirthDate] = useState("");
   const [birthDateKey, setBirthDateKey] = useState(false);
   const [selectedInsuranceType, setSelectedInsuranceType] = useState("");
   const [selectedHousingStatus, setSelectedHousingStatus] = useState("");
@@ -91,7 +96,9 @@ const NewFamilyModal = ({
   const [validationErrors, setValidationErrors] = useState({});
   //-------------------------------------------------------
 
-  console.log("physicalStatus", physicalStatus);
+  console.log("familyMembers", familyMembers);
+  console.log("tableBodyDatas", tableBodyDatas);
+  console.log("gender", gender);
 
   useEffect(() => {
     if (newFamilyModalShow && familyId) {
@@ -139,7 +146,41 @@ const NewFamilyModal = ({
           });
           setEmploymentFields(data?.employment_fields);
           // -------------------------------------------------------------
-          setTableBodyDatas(tableData);
+          if (data?.birth_date) {
+            let startDate = convertPersianToEnglishDate(
+              `${data?.birth_date[0]}${data?.birth_date[1]}${data?.birth_date[2]}${data?.birth_date[3]}`,
+              `${data?.birth_date[5]}${data?.birth_date[6]}`,
+              `${data?.birth_date[8]}${data?.birth_date[9]}`,
+            );
+            setSelectedBirthDate(startDate);
+            setOriginalBirthDate(startDate);
+            setBirthDateKey((prevKey) => prevKey + 1);
+          }
+          // -------------------------------------------------------------
+          // -------------------------------------------------------------
+          // Normalize the table data to have consistent property names
+          const normalizedTableData = tableData.map(member => ({
+            // Use consistent property names (camelCase with member prefix)
+            memberName: `${member.first_name || ''} ${member.last_name || ''}`.trim(),
+            memberFatherName: member.father_name || '',
+            memberNationalCode: member.national_code || '',
+            memberRelation: member.relation || '', // Add if you have this in API
+            memberCaretakerStatus: member.caretaker_status_name || '',
+            memberEducationStatus: member.education_status_name || '',
+            memberGender: member.gender === 1 ? 'مرد' : 'زن',
+            memberBirthdate: member.birth_date || '',
+            memberPhysicalStatus: member.physical_status_name || '',
+            // Store IDs for API submission
+            memberCaretakerStatusId: member.caretaker_status_id || null,
+            memberEducationStatusId: member.education_status_id || null,
+            memberGenderId: member.gender === 1 ? 0 : 1, // 0 for male, 1 for female
+            memberPhysicalStatusId: member.physical_status_id || 1,
+            // Keep original data for reference if needed
+            family_member_id: member.family_member_id,
+            family_id: member.family_id,
+          }));
+
+          setTableBodyDatas(normalizedTableData);
         })
         .catch((error) => {
           console.log("API error->", error);
@@ -166,20 +207,37 @@ const NewFamilyModal = ({
 
     setValidationErrors({});
 
-    // Construct family_members array with proper structure
-    const formattedFamilyMembers = familyMembers.map((member) => ({
+    // // Construct family_members array with proper structure
+    // const formattedFamilyMembers = familyMembers.map((member) => ({
+    //   first_name: member.memberName?.split(" ")[0] || "",
+    //   last_name: member.memberName?.split(" ").slice(1).join(" ") || "",
+    //   father_name: member.memberFatherName || "",
+    //   gender: member.memberGender === "مرد" ? 1 : 2,
+    //   national_code: member.memberNationalCode || "",
+    //   birth_date: member.memberBirthdate || "",
+    //   physical_status_id: member.memberPhysicalStatus?.id || 1,
+    //   caretaker_status_id: member.memberCaretakerStatus?.caretaker_status_id,
+    //   education_status_id: member.memberEducationStatus?.education_status_id,
+    // }));
+
+
+    // Format ALL members from tableBodyDatas (now all have consistent property names)
+    const formattedFamilyMembers = tableBodyDatas.map((member) => ({
       first_name: member.memberName?.split(" ")[0] || "",
       last_name: member.memberName?.split(" ").slice(1).join(" ") || "",
       father_name: member.memberFatherName || "",
       gender: member.memberGender === "مرد" ? 1 : 2,
       national_code: member.memberNationalCode || "",
       birth_date: member.memberBirthdate || "",
-      physical_status_id: member.memberPhysicalStatus?.id || 1,
-      caretaker_status_id: member.memberCaretakerStatus?.caretaker_status_id,
-      education_status_id: member.memberEducationStatus?.education_status_id,
+      physical_status_id: member.memberPhysicalStatusId || 1,
+      caretaker_status_id: member.memberCaretakerStatusId,
+      education_status_id: member.memberEducationStatusId,
+      // Include family_member_id if it exists (for updates)
+      ...(member.family_member_id && { family_member_id: member.family_member_id }),
     }));
-
+    
     const requestBody = {
+      family_id: familyId || null,
       family: {
         insurance_type_id: selectedInsuranceType?.insurance_type_id,
         house_status_id: selectedHousingStatus?.house_status_id,
@@ -193,125 +251,180 @@ const NewFamilyModal = ({
         first_name: headFirstName || "",
         last_name: headLastName || "",
         national_code: headNationalCode || "",
-        birth_date: selectedBirthDate || "",
+        birth_date:
+          originalBirthDate == selectedBirthDate
+            ? convertEnglishToPersianDateChatGpt(originalBirthDate)
+            : selectedBirthDate,
         father_name: headFatherName || "",
         phone: headPhone || "",
         wifes_name: headWifesName || "",
         bank_account: headBankAccount || "",
         job: headJob || "",
-        gender: gender?.id === 1 ? 1 : 2, // مرد=1, زن=2
+        gender: gender?.id === 0 ? 0 : 1, // مرد=0, زن=1
         physical_status_id: physicalStatus?.physical_status_id,
         lonely_reason: headLonelyReason || "",
       },
-      family_members: formattedFamilyMembers,
+      family_members: formattedFamilyMembers
     };
 
-    axios
-      .post(`/api/families`, requestBody)
-      .then((res) => {
-        if (res.status === 201) {
-          setSuccessModalShow(true);
-          setRefresh((prev) => !prev);
-          onClose();
-          // Reset form
-          setHeadFirstName("");
-          setHeadLastName("");
-          setHeadNationalCode("");
-          setHeadFatherName("");
-          setHeadPhone("");
-          setHeadWifesName("");
-          setHeadBankAccount("");
-          setHeadJob("");
-          setHeadLonelyReason("");
-          setSelectedBirthDate("");
-          setGender("");
-          setPhysicalStatus("");
-          setFamilyAddress("");
-          setFamilyPhone("");
-          setEmploymentFields("");
-          setSelectedInsuranceType("");
-          setSelectedHousingStatus("");
-          setSelectedRegion("");
-          setSelectedSupportingOrg("");
-          setFamilyMembers([]);
-          setTableBodyDatas([]);
+    if (familyId) {
+      axios
+        .patch(`/api/families`, requestBody)
+        .then((res) => {
+          if (res.status === 201) {
+            setSuccessModalShow(true);
+            setRefresh((prev) => !prev);
+            onClose();
+
+            setIsSubmit(false);
+          }
+        })
+        .catch((error) => {
+          console.error("Error submitting family:", error);
           setIsSubmit(false);
-        }
-      })
-      .catch((error) => {
-        console.error("Error submitting family:", error);
-        setIsSubmit(false);
-      });
+        });
+    } else {
+      axios
+        .post(`/api/families`, requestBody)
+        .then((res) => {
+          if (res.status === 201) {
+            setSuccessModalShow(true);
+            setRefresh((prev) => !prev);
+            onClose();
+
+            setIsSubmit(false);
+          }
+        })
+        .catch((error) => {
+          console.error("Error submitting family:", error);
+          setIsSubmit(false);
+        });
+    }
   };
+
+  // const addNewMember = () => {
+  //   setIsSubmitMember(true);
+
+  //   // require at least a name or national code
+  //   if (!memberNationalCode) {
+  //     setIsSubmitMember(false);
+  //     return;
+  //   }
+
+  //   setFamilyMembers((prevMembers) => {
+  //     // Check duplicate by national code if provided, otherwise by name+birthdate
+  //     const exists = memberNationalCode
+  //       ? prevMembers.some(
+  //         (m) =>
+  //           m.memberNationalCode &&
+  //           m.memberNationalCode === memberNationalCode,
+  //       )
+  //       : prevMembers.some(
+  //         (m) =>
+  //           m.memberName === memberName &&
+  //           m.memberBirthdate === memberBirthdate,
+  //       );
+
+  //     if (exists) {
+  //       // duplicate — do not add
+  //       setIsSubmitMember(false);
+  //       return prevMembers;
+  //     }
+
+  //     const newMember = {
+  //       memberName: memberName || "",
+  //       memberFatherName: memberFatherName || "",
+  //       memberNationalCode: memberNationalCode || "",
+  //       memberRelation: memberRelation || "",
+  //       memberCaretakerStatus:
+  //         memberCaretakerStatus?.caretaker_status_name || "",
+  //       memberEducationStatus:
+  //         memberEducationStatus?.education_status_name || "",
+  //       memberGender: memberGender?.name || memberGender || "",
+  //       memberBirthdate: memberBirthdate || "",
+  //       memberPhysicalStatus: memberPhysicalStatus?.physical_status_name || "",
+  //       // Store IDs for API submission
+  //       memberCaretakerStatusId: memberCaretakerStatus?.id || null,
+  //       memberEducationStatusId: memberEducationStatus?.id || null,
+  //       memberGenderId: memberGender?.id || null,
+  //       memberPhysicalStatusId: memberPhysicalStatus?.id || null,
+  //     };
+
+  //     const updated = [...prevMembers, newMember];
+  //     setTableBodyDatas(updated);
+
+  //     // reset member form fields
+
+  //     setMemberName("");
+  //     setMemberFatherName("");
+  //     setMemberNationalCode("");
+  //     setMemberRelation("");
+  //     setMemberStatus("");
+  //     setMemberEducationStatus("");
+  //     setMemberGender("");
+  //     setMemberBirthdate("");
+  //     setMemberPhysicalStatus("");
+  //     setMemberCaretakerStatus("");
+  //     setIsSubmitMember(false);
+  //     setMemberBirthdateKey((prev) => !prev);
+
+  //     return updated;
+  //   });
+  // };
 
   const addNewMember = () => {
     setIsSubmitMember(true);
 
-    // require at least a name or national code
     if (!memberNationalCode) {
       setIsSubmitMember(false);
       return;
     }
 
-    setFamilyMembers((prevMembers) => {
-      // Check duplicate by national code if provided, otherwise by name+birthdate
-      const exists = memberNationalCode
-        ? prevMembers.some(
-            (m) =>
-              m.memberNationalCode &&
-              m.memberNationalCode === memberNationalCode,
-          )
-        : prevMembers.some(
-            (m) =>
-              m.memberName === memberName &&
-              m.memberBirthdate === memberBirthdate,
-          );
+    // Check for duplicates in tableBodyDatas
+    const exists = memberNationalCode
+      ? tableBodyDatas.some(
+        (m) => m.national_code === memberNationalCode ||
+          m.memberNationalCode === memberNationalCode
+      )
+      : false;
 
-      if (exists) {
-        // duplicate — do not add
-        setIsSubmitMember(false);
-        return prevMembers;
-      }
-
-      const newMember = {
-        memberName: memberName || "",
-        memberFatherName: memberFatherName || "",
-        memberNationalCode: memberNationalCode || "",
-        memberRelation: memberRelation || "",
-        memberCaretakerStatus:
-          memberCaretakerStatus?.caretaker_status_name || "",
-        memberEducationStatus:
-          memberEducationStatus?.education_status_name || "",
-        memberGender: memberGender?.name || memberGender || "",
-        memberBirthdate: memberBirthdate || "",
-        memberPhysicalStatus: memberPhysicalStatus?.physical_status_name || "",
-        // Store IDs for API submission
-        memberCaretakerStatusId: memberCaretakerStatus?.id || null,
-        memberEducationStatusId: memberEducationStatus?.id || null,
-        memberGenderId: memberGender?.id || null,
-        memberPhysicalStatusId: memberPhysicalStatus?.id || null,
-      };
-
-      const updated = [...prevMembers, newMember];
-      setTableBodyDatas(updated);
-
-      // reset member form fields
-
-      setMemberName("");
-      setMemberFatherName("");
-      setMemberNationalCode("");
-      setMemberRelation("");
-      setMemberStatus("");
-      setMemberEducationStatus("");
-      setMemberGender("");
-      setMemberBirthdate("");
-      setMemberPhysicalStatus("");
-      setMemberCaretakerStatus("");
+    if (exists) {
       setIsSubmitMember(false);
-      setMemberBirthdateKey((prev) => !prev);
+      return;
+    }
 
-      return updated;
-    });
+    const newMember = {
+      memberName: memberName || "",
+      memberFatherName: memberFatherName || "",
+      memberNationalCode: memberNationalCode || "",
+      memberRelation: memberRelation || "",
+      memberCaretakerStatus: memberCaretakerStatus?.caretaker_status_name || "",
+      memberEducationStatus: memberEducationStatus?.education_status_name || "",
+      memberGender: memberGender?.name || memberGender || "",
+      memberBirthdate: memberBirthdate || "",
+      memberPhysicalStatus: memberPhysicalStatus?.physical_status_name || "",
+      memberCaretakerStatusId: memberCaretakerStatus?.id || null,
+      memberEducationStatusId: memberEducationStatus?.id || null,
+      memberGenderId: memberGender?.id || null,
+      memberPhysicalStatusId: memberPhysicalStatus?.id || null,
+    };
+
+    // Update tableBodyDatas with the new member
+    setTableBodyDatas((prev) => [...prev, newMember]);
+
+    // Reset form fields
+    setMemberName("");
+    setMemberFatherName("");
+    setMemberNationalCode("");
+    setMemberRelation("");
+    setMemberStatus("");
+    setMemberEducationStatus("");
+    setMemberGender("");
+    setMemberBirthdate("");
+    setMemberPhysicalStatus("");
+    setMemberCaretakerStatus("");
+    setIsSubmitMember(false);
+    setMemberBirthdateKey((prev) => !prev);
   };
 
   const removeMember = (index) => {
@@ -326,6 +439,28 @@ const NewFamilyModal = ({
     setIsSubmit(false);
     setValidationErrors({});
     setFamilyId(null);
+    // Reset form
+    setHeadFirstName("");
+    setHeadLastName("");
+    setHeadNationalCode("");
+    setHeadFatherName("");
+    setHeadPhone("");
+    setHeadWifesName("");
+    setHeadBankAccount("");
+    setHeadJob("");
+    setHeadLonelyReason("");
+    setSelectedBirthDate("");
+    setGender("");
+    setPhysicalStatus("");
+    setFamilyAddress("");
+    setFamilyPhone("");
+    setEmploymentFields("");
+    setSelectedInsuranceType("");
+    setSelectedHousingStatus("");
+    setSelectedRegion("");
+    setSelectedSupportingOrg("");
+    setFamilyMembers([]);
+    setTableBodyDatas([]);
   };
   useEffect(() => {
     if (!updateMode) {
@@ -525,7 +660,7 @@ const NewFamilyModal = ({
                             setKey={setBirthDateKey}
                           />
                           {(!selectedBirthDate && isSubmit) ||
-                          validationErrors.selectedBirthDate ? (
+                            validationErrors.selectedBirthDate ? (
                             <span className="font-iranSansBold -mb-1 mt-1 text-red-600 ease-in-out duration-300 text-[9px]">
                               {validationErrors.selectedBirthDate ||
                                 "وارد کردن تاریخ تولد الزامی است"}

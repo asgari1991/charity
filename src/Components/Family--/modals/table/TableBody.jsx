@@ -17,29 +17,29 @@ const TableBody = ({
       </td>
 
       <td dir="rtl" className="py-3 text-[12px] text-center  font-iranSans">
-        {`${item.first_name || "-"} ${item?.last_name || "-"}`}
+        {`${item.memberName || "-"}`}
       </td>
 
       <td dir="rtl" className="py-3  text-center text-[13px] font-iranSans">
-        {item.father_name || "-"}
+        {item.memberFatherName || "-"}
       </td>
       <td dir="rtl" className="py-3 px-5 text-[13px] text-center font-iranSans">
-        {item.birth_date || "-"}
+        {item.memberBirthdate || "-"}
       </td>
       <td dir="rtl" className="py-3 px-5 text-[12px] text-center font-iranSans">
-        {item.national_code || "-"}
+        {item.memberNationalCode || "-"}
       </td>
       <td dir="rtl" className="py-3 px-5 text-[13px] text-center font-iranSans">
-        {item.gender === 0 ? "مرد" : "زن" || "-"}
+        {item.memberGender || "-"}
       </td>
       <td dir="rtl" className="py-3 px-5 text-[13px] text-center font-iranSans">
-        {item.education_status_name || "-"}
+        {item.memberEducationStatus || "-"}
       </td>
       <td dir="rtl" className="py-3 px-5 text-[13px] text-center font-iranSans">
         {item.memberRelation || "-"}
       </td>
       <td dir="rtl" className="py-3 px-5 text-[13px] text-center font-iranSans">
-        {item.caretaker_status_name || "-"}
+        {item.memberCaretakerStatus || "-"}
       </td>
       <td dir="rtl" className="py-3 px-5 text-[13px] text-center font-iranSans">
         <div className="flex justify-center items-center">

@@ -17,7 +17,7 @@ const TableBody = ({
       </td>
 
       <td dir="rtl" className="py-3 text-[12px] text-center  font-iranSans">
-        {`${item.memberName || "-"}`}
+        {`${item.memberName || "-"} ${item.memberFamily || "-"}`}
       </td>
 
       <td dir="rtl" className="py-3  text-center text-[13px] font-iranSans">
@@ -62,6 +62,7 @@ const TableBody = ({
           </svg>
         </div>
       </td>
+   
     </tr>
   );
 };
