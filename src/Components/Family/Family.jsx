@@ -70,7 +70,7 @@ export default function Family() {
       .catch((error) => {
         console.log("API error->", error);
       });
-  }, [refresh, searchTerm, selectedResidenceStatus, selectedLocation]);
+  }, [refresh, searchTerm, selectedResidenceStatus, selectedLocation,page]);
 
   useEffect(() => {
     axios

@@ -4,6 +4,9 @@ import { Transition, Dialog } from "@headlessui/react";
 import CustomDateInput from "../../general/date-picker/CustomDateInput";
 import axios from "../../../axiosSetup";
 import ComboBox from "../../general/combox/ComboBox";
+import ListBox from "../../general/listbox/ListBox";
+import CustomInput from "../../general/input/CustomInput";
+import ErrorModal from "../../general/modals/ErrorModal";
 
 const NewVolunteerModal = ({
   newVolunteerModalShow,
@@ -22,10 +25,15 @@ const NewVolunteerModal = ({
   const [volunteerPhone, setVolunteerPhone] = useState("");
   const [volunteerBank, setVolunteerBank] = useState("");
   const [volunteerBankAccount, setVolunteerBankAccount] = useState("");
+  const [volunteerJob, setVolunteerJob] = useState("");
+  //-------------------------------------------------------
+  const [showAlertModal, setShowAlertModal] = useState(false);
+  const [showErrorModal, setShowErrorModal] = useState(false);
+  const [errorMessage, setErrorMessage] = useState();
   //-------------------------------------------------------
   const [genderList, setGenderList] = useState([
-    { id: 1, name: "مرد" },
-    { id: 2, name: "زن" },
+    { id: 0, name: "مرد" },
+    { id: 1, name: "زن" },
   ]);
   const [gender, setGender] = useState("");
 
@@ -49,6 +57,16 @@ const NewVolunteerModal = ({
             setVolunteerPhone(res.data?.mobile);
             setVolunteerBank(res.data?.bank);
             setVolunteerBankAccount(res.data?.account_number);
+            setVolunteerJob(res.data?.job);
+            setGender({
+              id: res.data?.gender,
+              name:
+                res.data?.gender === 0
+                  ? "مرد"
+                  : res.data?.gender === 1
+                    ? "زن"
+                    : "نامشخص",
+            });
           }
         })
         .catch((error) => {
@@ -75,13 +93,18 @@ const NewVolunteerModal = ({
 
     setValidationErrors({});
 
+    const accountNumberToSend = volunteerBankAccount.replace(/\s/g, "");
+
+
     const requestBody = {
       donor_id: updateMode ? volunteerId : null,
       name: volunteerFirstName,
       family: volunteerLastName,
       mobile: volunteerPhone,
       bank: volunteerBank,
-      account_number: volunteerBankAccount,
+      account_number: accountNumberToSend,
+      gender: gender?.id,
+      job: volunteerJob,
     };
     if (updateMode) {
       axios
@@ -103,6 +126,8 @@ const NewVolunteerModal = ({
         })
         .catch((error) => {
           console.error("Error updating volunteer:", error);
+          setErrorMessage(error?.response?.data?.error || "خطا");
+          setShowErrorModal(true);
           setIsSubmit(false);
         });
     } else {
@@ -125,6 +150,8 @@ const NewVolunteerModal = ({
         })
         .catch((error) => {
           console.error("Error submitting volunteer:", error);
+          setErrorMessage(error?.response?.data?.error || "خطا");
+          setShowErrorModal(true);
           setIsSubmit(false);
         });
     }
@@ -144,11 +171,34 @@ const NewVolunteerModal = ({
     setVolunteerId(null);
     setIsSubmit(false);
     setValidationErrors({});
+    setGender();
+    setVolunteerJob("");
+  };
+
+  const handleBankAccountChange = (e) => {
+    // keep only digits
+    let digits = e.target.value.replace(/\D/g, "");
+
+    // limit to 16 digits
+    if (digits.length > 16) {
+      digits = digits.slice(0, 16);
+    }
+
+    // format as XXXX XXXX XXXX XXXX
+    const formatted = digits.match(/.{1,4}/g)?.join(" ") || "";
+
+    // update state
+    setVolunteerBankAccount(formatted);
   };
 
   return (
     <Transition appear show={newVolunteerModalShow} as={Fragment}>
       <Dialog as="div" onClose={onClose} className="relative z-50">
+        <ErrorModal
+          showModal={showErrorModal}
+          setShowModal={setShowErrorModal}
+          errorMessage={errorMessage}
+        />
         <Transition.Child
           as={Fragment}
           enter="ease-out duration-500"
@@ -208,7 +258,14 @@ const NewVolunteerModal = ({
                         >
                           مشخصات خیر
                         </span>
-                        <input
+                        <CustomInput
+                          value={volunteerFirstName}
+                          onChange={(e) =>
+                            setVolunteerFirstName(e.target.value)
+                          }
+                          title="نام"
+                        />
+                        {/* <input
                           type="text"
                           placeholder="نام "
                           value={volunteerFirstName}
@@ -216,43 +273,39 @@ const NewVolunteerModal = ({
                             setVolunteerFirstName(e.target.value)
                           }
                           className="border border-mainBlue/25 px-2.5 py-2 rounded-lg text-sxs font-DanaMedium"
-                        />{" "}
+                        />{" "} */}
                         {validationErrors.volunteerFirstName && (
                           <span className="text-red-600 text-[9px] font-iranSansBold">
                             {validationErrors.volunteerFirstName}
                           </span>
                         )}{" "}
-                        <input
-                          type="text"
-                          placeholder="نام خانوادگی "
+                        <CustomInput
                           value={volunteerLastName}
                           onChange={(e) => setVolunteerLastName(e.target.value)}
-                          className="border border-mainBlue/25 px-2.5 py-2 rounded-lg text-sxs font-DanaMedium"
-                        />{" "}
+                          title="نام خانوادگی "
+                        />
                         {validationErrors.volunteerLastName && (
                           <span className="text-red-600 text-[9px] font-iranSansBold">
                             {validationErrors.volunteerLastName}
                           </span>
                         )}
-                        <input
-                          type="text"
-                          placeholder="شماره همراه "
+                        <CustomInput
                           value={volunteerPhone}
                           onChange={(e) => setVolunteerPhone(e.target.value)}
-                          className="border border-mainBlue/25 px-2.5 py-2 rounded-lg text-sxs font-DanaMedium"
+                          title="شماره همراه "
                         />
                         <div className="relative flex items-center">
-                          <ComboBox
-                            title="جنسیت "
+                          <ListBox
+                            placeHolder="جنسیت "
                             data={genderList}
-                            selectedValue={gender}
-                            onChangeHandler={(val) => setGender(val)}
-                            itemName={(item) => item.name}
-                            color="#420E5A"
-                            ringColor="#4E6F88"
+                            value={gender?.name}
+                            onSelectHandler={(val) => setGender(val)}
+                            itemName={(item) => item?.name}
+                            color="#7F909C"
                             rounded="8px"
+                            width="150px"
                           />
-                          {gender && (
+                          {/* {gender && (
                             <svg
                               onClick={() => {
                                 setGender("");
@@ -270,23 +323,24 @@ const NewVolunteerModal = ({
                                 d="M6 18 18 6M6 6l12 12"
                               />
                             </svg>
-                          )}
+                          )} */}
                         </div>
-                        <input
-                          type="text"
-                          placeholder="بانک  "
+                        <CustomInput
                           value={volunteerBank}
                           onChange={(e) => setVolunteerBank(e.target.value)}
-                          className="border border-mainBlue/25 px-2.5 py-2 rounded-lg text-sxs font-DanaMedium"
+                          title="بانک"
                         />
-                        <input
-                          type="text"
-                          placeholder="شماره حساب "
-                          value={volunteerBankAccount}
-                          onChange={(e) =>
-                            setVolunteerBankAccount(e.target.value)
-                          }
-                          className="border border-mainBlue/25 px-2.5 py-2 rounded-lg text-sxs font-DanaMedium"
+                        <div dir="ltr">
+                          <CustomInput
+                            value={volunteerBankAccount}
+                            onChange={handleBankAccountChange}
+                            title="شماره حساب"
+                          />
+                        </div>
+                        <CustomInput
+                          value={volunteerJob}
+                          onChange={(e) => setVolunteerJob(e.target.value)}
+                          title="شغل"
                         />
                       </div>
 

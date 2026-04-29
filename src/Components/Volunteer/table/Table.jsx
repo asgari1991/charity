@@ -7,6 +7,7 @@ const Table = ({
   setVolunteerId,
   setNewVolunteerModalShow,
   setUpdateMode,
+  setShowAlertModal
 }) => {
   return (
     <table className="mx-auto min-w-full p-2">
@@ -26,15 +27,16 @@ const Table = ({
         </tr>
       </thead>
       <tbody>
-        {tableBodyDatas.map((item, index) => {
+        {tableBodyDatas?.map((item, index) => {
           return (
             <TableBody
-              key={item.customer_id}
+              key={item.donor_id}
               item={item}
               index={index}
               setVolunteerId={setVolunteerId}
               setNewVolunteerModalShow={setNewVolunteerModalShow}
               setUpdateMode={setUpdateMode}
+              setShowAlertModal={setShowAlertModal}
             />
           );
         })}
