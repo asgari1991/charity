@@ -13,7 +13,6 @@ const TableBody = ({
   setNewVolunteerModalShow,
   setUpdateMode,
   setShowAlertModal,
-  
 }) => {
   return (
     <tr className=" odd:bg-[#F0F7FF] animate">
