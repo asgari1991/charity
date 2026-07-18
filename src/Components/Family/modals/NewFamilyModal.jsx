@@ -79,7 +79,7 @@ const NewFamilyModal = ({
   const [memberRelation, setMemberRelation] = useState("");
   const [memberStatus, setMemberStatus] = useState("");
   const [memberEducationStatus, setMemberEducationStatus] = useState("");
-  const [memberGender, setMemberGender] = useState("");
+  const [memberGender, setMemberGender] = useState(null);
   const [memberBirthdate, setMemberBirthdate] = useState("");
   const [memberBirthdateKey, setMemberBirthdateKey] = useState(false);
   const [memberPhysicalStatus, setMemberPhysicalStatus] = useState("");
@@ -227,8 +227,8 @@ const NewFamilyModal = ({
     const errors = {};
     if (!headFirstName) errors.headFirstName = "نام الزامی است";
     if (!headLastName) errors.headLastName = "نام خانوادگی الزامی است";
-    if (!headNationalCode) errors.headNationalCode = "کد ملی الزامی است";
-    if (!selectedBirthDate) errors.selectedBirthDate = "تاریخ تولد الزامی است";
+    // if (!headNationalCode) errors.headNationalCode = "کد ملی الزامی است";
+    // if (!selectedBirthDate) errors.selectedBirthDate = "تاریخ تولد الزامی است";
 
     if (Object.keys(errors).length > 0) {
       setValidationErrors(errors);
@@ -418,24 +418,30 @@ const NewFamilyModal = ({
     if (!member.memberFamily?.trim())
       errors.memberFamily = "نام خانوادگی عضو نمی‌تواند خالی باشد";
 
-    if (!member.memberFatherName?.trim())
-      errors.memberFatherName = "نام پدر نمی‌تواند خالی باشد";
+    // if (!member.memberFatherName?.trim())
+    //   errors.memberFatherName = "نام پدر نمی‌تواند خالی باشد";
 
-    if (!member.memberNationalCode?.trim())
-      errors.memberNationalCode = "کد ملی الزامی است";
-    else if (!/^\d{10}$/.test(member.memberNationalCode))
-      errors.memberNationalCode = "کد ملی باید ۱۰ رقم باشد";
+    // if (!member.memberNationalCode?.trim())
+    //   errors.memberNationalCode = "کد ملی الزامی است";
+    // else if (!/^\d{10}$/.test(member.memberNationalCode))
+    //   errors.memberNationalCode = "کد ملی باید ۱۰ رقم باشد";
 
-    // if (!member.memberRelation?.trim())
-    //   errors.memberRelation = "نسبت با سرپرست الزامی است";
+    // // if (!member.memberRelation?.trim())
+    // //   errors.memberRelation = "نسبت با سرپرست الزامی است";
+    // console.log("member.memberGenderId", member.memberGenderId);
 
-    if (!member.memberGenderId) errors.memberGender = "انتخاب جنسیت الزامی است";
+    // if (member.memberGenderId === null || member.memberGenderId === undefined) {
+    //   errors.memberGender = "لطفاً جنسیت را انتخاب کنید"; // Please select gender
+    // }
 
-    if (!member.memberBirthdate?.trim())
-      errors.memberBirthdate = "تاریخ تولد الزامی است";
+    // if (!member.memberBirthdate?.trim())
+    //   errors.memberBirthdate = "تاریخ تولد الزامی است";
 
     return errors;
   };
+
+  console.log("memberGender", memberGender);
+
 
   const addNewMember = () => {
     setIsSubmitMember(true);
@@ -448,16 +454,17 @@ const NewFamilyModal = ({
     // Check for duplicates in tableBodyDatas
     const exists = memberNationalCode
       ? tableBodyDatas.some(
-          (m) =>
-            m.national_code === memberNationalCode ||
-            m.memberNationalCode === memberNationalCode,
-        )
+        (m) =>
+          m.national_code === memberNationalCode ||
+          m.memberNationalCode === memberNationalCode,
+      )
       : false;
 
     if (exists) {
       setIsSubmitMember(false);
       return;
     }
+    console.log("memberGender?.id---->", memberGender?.id);
 
     const newMember = {
       memberName: memberName || "",
@@ -474,7 +481,7 @@ const NewFamilyModal = ({
         memberCaretakerStatus?.caretaker_status_id || null,
       memberEducationStatusId:
         memberEducationStatus?.education_status_id || null,
-      memberGenderId: memberGender?.id || null,
+      memberGenderId: memberGender?.id,
       memberPhysicalStatusId: memberPhysicalStatus?.id || null,
     };
 
@@ -498,7 +505,7 @@ const NewFamilyModal = ({
     setMemberRelation("");
     setMemberStatus("");
     setMemberEducationStatus("");
-    setMemberGender("");
+    setMemberGender(null);
     setMemberBirthdate("");
     setMemberPhysicalStatus("");
     setMemberCaretakerStatus("");
@@ -545,7 +552,7 @@ const NewFamilyModal = ({
     setMemberName();
     setMemberFamily();
     setMemberFatherName();
-    setMemberGender();
+    setMemberGender(null);
     setMemberRelation();
     setMemberNationalCode();
     setMemberPhysicalStatus();
@@ -770,11 +777,11 @@ const NewFamilyModal = ({
                             title="کد ملی "
                           />
 
-                          {validationErrors.headNationalCode && (
+                          {/* {validationErrors.headNationalCode && (
                             <span className="text-red-600 text-[10px] mt-1 font-DanaDemiBold">
                               {validationErrors.headNationalCode}
                             </span>
-                          )}
+                          )} */}
                         </div>
                         <div className="relative">
                           <CustomDateInput
@@ -784,13 +791,13 @@ const NewFamilyModal = ({
                             dateKey={birthDateKey}
                             setKey={setBirthDateKey}
                           />
-                          {(!selectedBirthDate && isSubmit) ||
-                          validationErrors.selectedBirthDate ? (
+                          {/* {(!selectedBirthDate && isSubmit) ||
+                            validationErrors.selectedBirthDate ? (
                             <span className="font-DanaDemiBold   -mt-[4px] text-red-600 ease-in-out duration-300 text-[10px]">
                               {validationErrors.selectedBirthDate ||
                                 "وارد کردن تاریخ تولد الزامی است"}
                             </span>
-                          ) : null}
+                          ) : null} */}
                         </div>
 
                         <CustomInput
@@ -1079,7 +1086,7 @@ const NewFamilyModal = ({
                             e.preventDefault();
                             setNewMemberShow(true);
                           }}
-                          title="عضو جدید"
+                          title="اعضای تحت تکفل"
                           bg
                           isContractors
                           type="button"
@@ -1100,7 +1107,7 @@ const NewFamilyModal = ({
                           className={`${`z-[10000] text-[10px] right-[6px] left-18 -top-2 px-[4px]`} absolute group-focus-within:px-[4px] 
 min-w-max cursor-text  ease-in-out duration-500  font-iranSans text-mainBlue text-left transition-all bg-white`}
                         >
-                          عضو جدید
+                          اعضای تحت تکفل
                         </span>
                         <div className="flex flex-col">
                           <CustomInput
@@ -1136,12 +1143,12 @@ min-w-max cursor-text  ease-in-out duration-500  font-iranSans text-mainBlue tex
                             }
                             title="نام پدر"
                           />
-
+{/* 
                           {memberErrors?.memberFatherName && (
                             <span className="text-red-600 font-DanaDemiBold mt-1 text-[10px]">
                               {memberErrors.memberFatherName}
                             </span>
-                          )}
+                          )} */}
                         </div>
                         <div className="flex flex-col ">
                           <div className="relative flex items-center">
@@ -1158,7 +1165,7 @@ min-w-max cursor-text  ease-in-out duration-500  font-iranSans text-mainBlue tex
                             {memberGender && (
                               <svg
                                 onClick={() => {
-                                  setMemberGender("");
+                                  setMemberGender(null);
                                 }}
                                 xmlns="http://www.w3.org/2000/svg"
                                 fill="none"
@@ -1175,11 +1182,11 @@ min-w-max cursor-text  ease-in-out duration-500  font-iranSans text-mainBlue tex
                               </svg>
                             )}
                           </div>
-                          {memberErrors?.memberGender && (
+                          {/* {memberErrors?.memberGender && (
                             <span className="text-red-600 font-DanaDemiBold mt-1 text-[10px]">
                               {memberErrors.memberGender}
                             </span>
-                          )}
+                          )} */}
                         </div>
 
                         <CustomInput
@@ -1188,14 +1195,20 @@ min-w-max cursor-text  ease-in-out duration-500  font-iranSans text-mainBlue tex
                           title="نسب"
                         />
 
-                        <CustomInput
-                          value={memberNationalCode}
-                          onChange={(e) =>
-                            setMemberNationalCode(e.target.value)
-                          }
-                          title="کدملی"
-                        />
-
+                        <div className="flex flex-col ">
+                          <CustomInput
+                            value={memberNationalCode}
+                            onChange={(e) =>
+                              setMemberNationalCode(e.target.value)
+                            }
+                            title="کدملی"
+                          />
+                          {/* {memberErrors?.memberNationalCode && (
+                            <span className="text-red-600 font-DanaDemiBold mt-1 text-[10px]">
+                              {memberErrors.memberNationalCode}
+                            </span>
+                          )} */}
+                        </div>
                         <div className="relative flex items-center">
                           <ComboBox
                             title="وضعیت جسمانی"
@@ -1237,11 +1250,16 @@ min-w-max cursor-text  ease-in-out duration-500  font-iranSans text-mainBlue tex
                             dateKey={memberBirthdateKey}
                             setKey={setMemberBirthdateKey}
                           />
-                          {!memberBirthdate && isSubmit && (
+                          {/* {!memberBirthdate && isSubmit && (
                             <span className="font-DanaDemiBold -mb-1 mt-1 text-red-600 ease-in-out duration-300 text-[10px]">
                               وارد کردن تاریخ تولد الزامی است
                             </span>
-                          )}
+                          )} */}
+                          {/* {memberErrors?.memberBirthdate && (
+                            <span className="text-red-600 font-DanaDemiBold mt-1 text-[10px]">
+                              {memberErrors.memberBirthdate}
+                            </span>
+                          )} */}
                         </div>
                         <div className="relative flex items-center">
                           <ComboBox
@@ -1328,7 +1346,7 @@ min-w-max cursor-text  ease-in-out duration-500  font-iranSans text-mainBlue tex
                           className={`${`text-[10px] right-[6px] left-18 -top-2 px-[4px]`} absolute group-focus-within:px-[4px] 
       min-w-max cursor-text  ease-in-out duration-500  font-iranSans text-mainBlue text-left transition-all bg-white`}
                         >
-                          لیست اعضا
+                           اعضای تحت تکفل
                         </span>
                         <Table
                           tableBodyDatas={tableBodyDatas}
