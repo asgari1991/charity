@@ -214,6 +214,7 @@ export default function SideBar() {
               گزارشات
             </NavLink>
           </ul>
+      <p className="absolute text-[11px] top-[80%]- -bottom-14 left-2">Version 1.0.0</p>
         </div>
       </div>
     </div>

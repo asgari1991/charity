@@ -34,7 +34,7 @@ const NewFamilyModal = ({
   const [selectedInsuranceType, setSelectedInsuranceType] = useState("");
   const [selectedHousingStatus, setSelectedHousingStatus] = useState("");
   const [selectedSupportingOrg, setSelectedSupportingOrg] = useState("");
-  const [selectedRegion, setSelectedRegion] = useState("");
+  const [selectedRegion, setSelectedRegion] = useState(null);
   //-------------------------------------------------------
   // Family Head states
   const [headFirstName, setHeadFirstName] = useState("");
@@ -218,6 +218,9 @@ const NewFamilyModal = ({
     }
   }, [newFamilyModalShow]);
 
+  console.log("selectedRegion",selectedRegion);
+  
+
   const onSubmitHandler = (e) => {
     e.preventDefault();
     console.log("form is submitted");
@@ -274,7 +277,7 @@ const NewFamilyModal = ({
         house_status_id: selectedHousingStatus?.house_status_id,
         address: familyAddress || "",
         phone: familyPhone || "",
-        region_id: selectedRegion?.id || 1,
+        region_id: selectedRegion?.region_id,
         support_orgs_id: selectedSupportingOrg?.support_orgs_id,
         employment_fields: employmentFields || "",
       },
@@ -543,7 +546,7 @@ const NewFamilyModal = ({
     setEmploymentFields("");
     setSelectedInsuranceType("");
     setSelectedHousingStatus("");
-    setSelectedRegion("");
+    setSelectedRegion(null);
     setSelectedSupportingOrg("");
     setFamilyMembers([]);
     setTableBodyDatas([]);
@@ -903,11 +906,7 @@ const NewFamilyModal = ({
                             rounded="8px"
                           />
                         </div>
-                        <CustomInput
-                          value={headLonelyReason}
-                          onChange={(e) => setHeadLonelyReason(e.target.value)}
-                          title="علت تنهایی"
-                        />
+                       
 
                         <CustomInput
                           value={headBankAccount}
@@ -1023,7 +1022,7 @@ const NewFamilyModal = ({
                           {selectedRegion && (
                             <svg
                               onClick={() => {
-                                setSelectedRegion("");
+                                setSelectedRegion(null);
                               }}
                               xmlns="http://www.w3.org/2000/svg"
                               fill="none"

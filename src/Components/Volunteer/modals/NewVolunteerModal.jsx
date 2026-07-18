@@ -258,14 +258,16 @@ const NewVolunteerModal = ({
                         >
                           مشخصات خیر
                         </span>
-                        <CustomInput
-                          value={volunteerFirstName}
-                          onChange={(e) =>
-                            setVolunteerFirstName(e.target.value)
-                          }
-                          title="نام"
-                        />
-                        {/* <input
+                        <div className="flex flex-col gap-1">
+
+                          <CustomInput
+                            value={volunteerFirstName}
+                            onChange={(e) =>
+                              setVolunteerFirstName(e.target.value)
+                            }
+                            title="نام"
+                          />
+                          {/* <input
                           type="text"
                           placeholder="نام "
                           value={volunteerFirstName}
@@ -274,21 +276,26 @@ const NewVolunteerModal = ({
                           }
                           className="border border-mainBlue/25 px-2.5 py-2 rounded-lg text-sxs font-DanaMedium"
                         />{" "} */}
-                        {validationErrors.volunteerFirstName && (
-                          <span className="text-red-600 text-[9px] font-iranSansBold">
-                            {validationErrors.volunteerFirstName}
-                          </span>
-                        )}{" "}
-                        <CustomInput
-                          value={volunteerLastName}
-                          onChange={(e) => setVolunteerLastName(e.target.value)}
-                          title="نام خانوادگی "
-                        />
-                        {validationErrors.volunteerLastName && (
-                          <span className="text-red-600 text-[9px] font-iranSansBold">
-                            {validationErrors.volunteerLastName}
-                          </span>
-                        )}
+                          {validationErrors.volunteerFirstName && (
+                            <span className="text-red-600 mr-1 text-[10px] font-iranSansBold">
+                              {validationErrors.volunteerFirstName}
+                            </span>
+                          )}
+                        </div>
+                        <div className="flex flex-col gap-1">
+
+                          <CustomInput
+                            value={volunteerLastName}
+                            onChange={(e) => setVolunteerLastName(e.target.value)}
+                            title="نام خانوادگی "
+                          />
+                          {validationErrors.volunteerLastName && (
+                            <span className="text-red-600 text-[10px] font-iranSansBold">
+                              {validationErrors.volunteerLastName}
+                            </span>
+                          )}
+                        </div>
+
                         <CustomInput
                           value={volunteerPhone}
                           onChange={(e) => setVolunteerPhone(e.target.value)}
