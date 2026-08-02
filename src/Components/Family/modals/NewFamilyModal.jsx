@@ -274,7 +274,7 @@ const NewFamilyModal = ({
         house_status_id: selectedHousingStatus?.house_status_id,
         address: familyAddress || "",
         phone: familyPhone || "",
-        region_id: selectedRegion?.id || 1,
+        region_id: selectedRegion?.region_id,
         support_orgs_id: selectedSupportingOrg?.support_orgs_id,
         employment_fields: employmentFields || "",
       },

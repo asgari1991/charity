@@ -62,40 +62,43 @@ const ListBox = ({
         >
           <span
             style={{ fontSize: textSize }}
-            className="block truncate font-iranSans pr-4 text-[#1E1E1E]"
+            className="block truncate font-Dana pr-4 text-[#1E1E1E]"
           >
             {value}
           </span>
-          <span className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
-            <svg
-              style={{ color: color }}
-              xmlns="http://www.w3.org/2000/svg"
-              fill="none"
-              viewBox="0 0 24 24"
-              strokeWidth={1.5}
-              stroke="currentColor"
-              className={`w-5 h-5 ${
-                theme === "dark-blue"
-                  ? "text-[#25A6DF]"
-                  : theme === "green"
-                    ? "text-[#00907F]"
-                    : theme === "light-blue"
-                      ? "#69D8FF"
-                      : theme === "blue"
-                        ? "text-[#25A6DF]"
-                        : theme === "purple" && "text-[#420E5A]"
-              }`}
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                d="M19.5 8.25l-7.5 7.5-7.5-7.5"
-              />
-            </svg>
-          </span>
+          {!value && (
+            <span className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
+              <svg
+                style={{ color: color }}
+                xmlns="http://www.w3.org/2000/svg"
+                fill="none"
+                viewBox="0 0 24 24"
+                strokeWidth={1.5}
+                stroke="currentColor"
+                className={`w-5 h-5 ${
+                  theme === "dark-blue"
+                    ? "text-[#25A6DF]"
+                    : theme === "green"
+                      ? "text-[#00907F]"
+                      : theme === "light-blue"
+                        ? "#69D8FF"
+                        : theme === "blue"
+                          ? "text-[#25A6DF]"
+                          : theme === "purple" && "text-[#420E5A]"
+                }`}
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  d="M19.5 8.25l-7.5 7.5-7.5-7.5"
+                />
+              </svg>
+            </span>
+          )}
+
           <span
             style={{ color: color }}
-            className={`text-[10px] px-1 absolute group-focus-within:px-[4px] min-w-max cursor-text ease-in-out duration-500 right-[6px] -top-2 font-iranSans ${
+            className={`text-[10px] px-1 absolute group-focus-within:px-[4px] min-w-max cursor-text ease-in-out duration-500 right-[6px] -top-2 font-Dana ${
               theme === "dark-blue"
                 ? "text-[#0052C5]"
                 : theme === "green"
@@ -124,7 +127,7 @@ const ListBox = ({
               <Listbox.Option
                 key={item.id}
                 className={({ active }) =>
-                  `relative font-iranSans cursor-pointer ease-in-out duration-300 lg:text-[10px] md:text-[11px] text-[10px] text-[#000000] select-none py-2 pl-10 pr-4 ${
+                  `relative font-DanaMedium cursor-pointer ease-in-out duration-300 lg:text-[10px] md:text-[11px] text-[10px] text-[#000000] select-none py-2 pl-10 pr-4 ${
                     active ? "bg-[#E3F0FF] mx-2 rounded-md" : ""
                   }`
                 }

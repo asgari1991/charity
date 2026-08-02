@@ -105,7 +105,7 @@ const ComboBox = ({
                   fontSize: fontSize,
                 }}
                 placeholder={title}
-                className=" outline-none py-1 pl-7 text-black  border font-iranSans pr-3  leading-5"
+                className=" outline-none py-1 pl-7 text-black  border font-Dana pr-3  leading-5"
                 displayValue={(val) => (val ? itemName(val) : "")}
                 onChange={(event) => search(event.target.value)}
               />
@@ -122,10 +122,10 @@ const ComboBox = ({
                 width: optionWidth ? optionWidth : "100%",
               }}
               static
-              className="absolute z-[60] mt-1 max-h-60 w-full- overflow-auto rounded-md bg-white py-1 text-base shadow-lg sm:text-sm"
+              className="absolute font-DanaMedium z-[60] mt-1 max-h-60 w-full- overflow-auto rounded-md bg-white py-1 text-base shadow-lg sm:text-sm"
             >
               {!filteredItems || filteredItems.length === 0 ? (
-                <div className="relative text-[10px] font-iranSansLight cursor-default select-none py-2 px-4 text-gray-700">
+                <div className="relative text-[10px] font-Dana cursor-default select-none py-2 px-4 text-gray-700">
                   یافت نشد
                 </div>
               ) : (
@@ -134,7 +134,7 @@ const ComboBox = ({
                   <Combobox.Option
                     key={itemName(item)}
                     className={({ active }) =>
-                      `relative cursor-pointer select-none ease-in-out duration-300 py-2 pl-10 pr-4 ${
+                      `relative !font-DanaMedium cursor-pointer select-none ease-in-out duration-300 py-2 pl-10 pr-4 ${
                         active ? "bg-[#E3F0FF] mx-2 rounded-md" : ""
                       }`
                     }
@@ -145,9 +145,9 @@ const ComboBox = ({
                         className={`flex w-full items-center justify-between `}
                       >
                         <span
-                          className={`font-iranSans truncate ${
+                          className={`font-DanaMedium truncate ${
                             selected ? "font-medium" : "font-normal"
-                          } text-[10px] font-iranSans`}
+                          } text-[10px] font-DanaMedium`}
                         >
                           {itemName(item)}
                         </span>
