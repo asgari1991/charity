@@ -34,7 +34,7 @@ const NewFamilyModal = ({
   const [selectedInsuranceType, setSelectedInsuranceType] = useState("");
   const [selectedHousingStatus, setSelectedHousingStatus] = useState("");
   const [selectedSupportingOrg, setSelectedSupportingOrg] = useState("");
-  const [selectedRegion, setSelectedRegion] = useState("");
+  const [selectedRegion, setSelectedRegion] = useState(null);
   //-------------------------------------------------------
   // Family Head states
   const [headFirstName, setHeadFirstName] = useState("");
@@ -217,6 +217,9 @@ const NewFamilyModal = ({
         });
     }
   }, [newFamilyModalShow]);
+
+  console.log("selectedRegion",selectedRegion);
+  
 
   const onSubmitHandler = (e) => {
     e.preventDefault();
@@ -543,7 +546,7 @@ const NewFamilyModal = ({
     setEmploymentFields("");
     setSelectedInsuranceType("");
     setSelectedHousingStatus("");
-    setSelectedRegion("");
+    setSelectedRegion(null);
     setSelectedSupportingOrg("");
     setFamilyMembers([]);
     setTableBodyDatas([]);
@@ -903,11 +906,7 @@ const NewFamilyModal = ({
                             rounded="8px"
                           />
                         </div>
-                        <CustomInput
-                          value={headLonelyReason}
-                          onChange={(e) => setHeadLonelyReason(e.target.value)}
-                          title="علت تنهایی"
-                        />
+                       
 
                         <CustomInput
                           value={headBankAccount}
@@ -1023,7 +1022,7 @@ const NewFamilyModal = ({
                           {selectedRegion && (
                             <svg
                               onClick={() => {
-                                setSelectedRegion("");
+                                setSelectedRegion(null);
                               }}
                               xmlns="http://www.w3.org/2000/svg"
                               fill="none"
